@@ -1,0 +1,10 @@
+Source: simple-usb-flasher
+Section: misc
+Priority: optional
+Maintainer: Carson Grover
+Homepage: https://www.shockos.net
+Package: simple-usb-flasher
+Version: 1.0
+Architecture: all
+Depends: 7z, bunzip2, bzip2, gzip, gunzip, lzcat, lzma, pzstd, tar, unrar, unzip, unzstd, xz, xzcat, zcat, zstd, zstdcat
+Description: Simple USB Flasher - Easily flash bootable images to block devices such as USB flash drives, external USB SSDs/HDDs, and SD cards.

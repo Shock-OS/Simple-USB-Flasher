@@ -1,0 +1,217 @@
+#!/bin/bash
+
+if [[ " $* " =~ ' --verbose ' ]]
+then
+    verbose=true
+else
+    verbose=false
+fi
+
+if [[ " $* " =~ ' --ask-method ' ]]
+then
+    ask_for_method=true
+else
+    ask_for_method=false
+fi
+
+function show-help-screen {
+echo 'simple-usb-flasher-cli: [ACTIONS] [PARAMETERS] [OPTIONS]'
+echo ''
+echo 'ACTIONS:'
+printf "    %-35s %-10s \n" "erase [DEVICE]" "Erase [DEVICE] to use it as a normal storage device again. Formats to exFAT by default, but can be used with --ask-method to select a filesystem."
+printf "    %-35s %-10s \n" "flash [PATH_TO_IMAGE] [DEVICE]" "Flash image [PATH_TO_IMAGE] to [DEVICE]."
+printf "    %-35s %-10s \n" "list-devices" "List available external USB drives, SD cards, or USB SSDs/HDDs that can be flashed"
+printf "    %-35s %-10s \n" "list-supported-file-types" "Show a list of file types supported for flashing"
+echo ''
+echo 'FLASH OPTIONS:'
+printf "    %-25s %-10s \n" "--ask-method" "If multiple decompression methods are available for an image type, prompt the user for which one to use. If this options is not applied, the default option will be used."
+printf "    %-25s %-10s \n" "--skip-size-check" "Don't check to see if image will fit on device, attempt flashing anyway."
+printf "    %-25s %-10s \n" "--skip-size-check-smart" "Same as '--skip-size-check', but only skips checking size if it 'may take a while'."
+echo ''
+echo 'OTHER OPTIONS:'
+printf "    %-20s %-10s \n" "--verbose" "Increase output verbosity"
+}
+
+function abort {
+local device="$1"
+echo "Operation aborted. No changes were made to device ${device}."
+exit
+}
+
+function list-supported-file-types {
+cat /usr/share/simple-usb-flasher/supported-file-types.txt
+}
+
+function ask-method {
+local image="$1"
+local methods
+methods="$(/usr/libexec/simple-usb-flasher/get-image-info/get-methods.sh "$image")" || return 1
+mapfile -t methods <<< "$methods"
+local image_type="$(/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh "$image" "$verbose")"
+if $ask_for_method
+then
+    echo "The following decompression methods are available for compressed image type $image_type:" > /dev/tty
+    echo '' > /dev/tty
+    local counter=0
+    until (( counter >= "${#methods[@]}" ))
+    do
+        echo "$(( counter + 1 ))). ${methods[counter]}" > /dev/tty
+        counter=$(( counter + 1 ))
+    done
+    echo '' > /dev/tty
+    read -p "Which method would you like to use? [1-${#methods[@]}]: " ans
+    if [[ ! "$ans" =~ ^[0-9]+$ ]]
+    then
+        echo "SYNTAX ERROR: '${ans}' is not a number." > /dev/tty
+        exit 1
+    elif ! (( 1 <= ans && ans <= ${#methods[@]} ))
+    then
+        echo "SYNTAX ERROR: Number '${ans}' is not a valid method." > /dev/tty
+        exit 1
+    else
+        local method="${methods[$(( ans - 1 ))]}"
+        echo "Choosing method $method" > /dev/tty
+    fi
+else
+    local method="${methods[0]}"
+fi
+echo "$method"
+}
+
+function list-devices {
+local devices=($(/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh))
+local sizes=()
+local labels=()
+if (( ${#devices[@]} > 0 ))
+then
+    mapfile -t sizes <<< "$(/usr/libexec/simple-usb-flasher/get-devices-info/get-human-sizes.sh)"
+    mapfile -t labels <<< "$(/usr/libexec/simple-usb-flasher/get-labels.sh)"
+    printf "%-10s %-10s %-10s\n" "DEVICE" "SIZE" "LABEL"
+    echo '---------------------------------'
+    n="${#devices[@]}"
+    for ((i=0; i<=n; i++))
+    do
+        printf "%-10s %-10s %-10s\n" "${devices[i]}" "${sizes[i]}" "${labels[i]}"
+    done
+else
+    echo "No external USB or SD block devices are attached."
+fi
+}
+
+function flash {
+local image="$(echo "$1" | sed "s|^~|$HOME|")"
+/usr/libexec/simple-usb-flasher/get-image-info/check-file-exists.sh "$image" --verbose || exit "$?"
+local device
+device="$(/usr/libexec/simple-usb-flasher/parse-device.sh "$2" --verbose)" || exit "$?"
+local file_type="$(/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh "$image" "$verbose")"
+if [[ -z "$file_type" ]]
+then
+    echo "WARNING: File '${image}' does not appear to be a valid image file. However, you can have the program attempt to write the file to device $device anyway."
+    echo ''
+    read -p 'Attempt to flash image anyway? [y/N]: ' ans
+    ans="${ans,,}"
+    if ! [[ "$ans" == 'yes' || "$ans" == 'y' ]]
+    then
+        abort "$device"
+    fi
+fi
+if ! ( [[ " $* " =~ ' --skip-size-check ' ]] || ( [[ " $* " =~ ' --skip-size-check-smart ' ]] && /usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh "$image" --takes-time ) )
+then
+    local image_size="$(/usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh "$image")"
+    local device_size=$(lsblk -bno SIZE "$device" | head -n 1)
+    if (( image_size > device_size ))
+    then
+        local image_size_gb="$(/usr/libexec/simple-usb-flasher/bytes-to-gb.sh "$image_size")"
+        local device_size_gb="$(/usr/libexec/simple-usb-flasher/bytes-to-gb.sh "$device_size")"
+        echo "WARNING: Image '${image}' ($image_size_gb GB) appears to be too big for device $device ($device_size_gb GB). Therefore, flashing this image will likely not result in the device being bootable. However, you can still have the program attempt to flash the image anyway if you like."
+        echo ''
+        read -p "Flash image anyway? [y/N]: " ans
+        ans="${ans,,}"
+        if ! [[ "$ans" == 'yes' || "$ans" == 'y' ]]
+        then
+            abort "$device"
+        fi
+    fi
+else
+    echo 'WARNING: Skipping size check, errors may be encountered if the source image is too large for the target device.'
+fi
+local method
+method="$(ask-method "$image")"
+echo ''
+echo "WARNING: Flashing an image will ERASE ALL DATA on device ${device}. Are you sure you would like to continue?"
+echo ''
+read -p "Flash image to device ${device}? [y/N]: " ans
+case "$ans" in
+    y|yes)
+        sudo /usr/libexec/simple-usb-flasher/write-image.sh "$image" "$device" "$method" --verbose
+        exit
+        ;;
+    *)
+        abort "$device"
+        ;;
+esac
+}
+
+function erase() {
+local device
+device="$(/usr/libexec/simple-usb-flasher/parse-device.sh "$1" --verbose)" || exit "$?"
+if $ask_for_method
+then
+    echo "Which filesystem would you like to format device $device with? Available options are:"
+    echo ''
+    echo '1). exFAT (Recommended for most cases, pretty compatible.)'
+    echo '2). FAT32 (Most compatible, especially with older devices/systems. Cannot store files larger than 4 GB in size.)'
+    echo '3). NTFS (Compatible with most Microsoft Windows systems.)'
+    echo '4). EXT4 (Compatible with most Linux systems. NOT compatible with much else, though.)'
+    echo ''
+    read -p 'Which format to use? [1-4]: ' ans
+    case "$ans" in
+        1) local fs='exfat' ;;
+        2) local fs='fat32' ;;
+        3) local fs='ntfs' ;;
+        4) local fs='ext4' ;;
+        *) echo "SYNTAX ERROR: '${ans}' is not a valid format."; exit 1 ;;
+    esac
+else
+    local fs="exfat"
+fi
+if $verbose
+then
+    echo "Will use $fs filesystem to format"
+fi
+echo ''
+echo "You can assign a label to device ${device}. The criteria for the label is:"
+echo ''
+echo '1. Must be 1-10 characters long'
+echo '2. Only letters, numbers, hypens, and underscores'
+echo ''
+echo "If you leave this empty, the label will be 'USB_STICK'."
+echo ''
+read -p "Please enter a name/label for device ${device}: " label
+local 
+echo "WARNING: You are about to ERASE ALL DATA on device ${device}. This action CANNOT BE UNDONE. Are you sure you would like to continue?"
+echo ''
+read -p "Erase device ${device}? [y/N]: " ans
+ans="${ans,,}"
+case "$ans" in
+    y|yes)
+        if [[ -z "$label" ]]
+        then
+            label='USB_STICK'
+        fi
+        sudo /usr/libexec/simple-usb-flasher/erase-device.sh "$device" "$fs" "$label" "$verbose"
+        ;;
+    *)
+        abort "$device"
+        ;;
+esac
+}
+
+case "$1" in
+    erase) erase "$2" ;;
+    flash) flash "$2" "$3" "$4" ;;
+    list-devices) list-devices ;;
+    list-supported-file-types) list-supported-file-types ;;
+    *) show-help-screen ;;
+esac
+
