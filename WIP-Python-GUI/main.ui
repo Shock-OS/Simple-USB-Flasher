@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.94.1 -->
+<interface>
+  <!-- interface-name simple-usb-flasher.ui -->
+  <requires lib="gtk" version="4.12"/>
+  <object class="GtkApplicationWindow" id="main_window">
+    <property name="child">
+      <object class="GtkBox">
+        <property name="hexpand">True</property>
+        <property name="margin-bottom">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-top">10</property>
+        <property name="spacing">10</property>
+        <property name="valign">center</property>
+        <child>
+          <object class="GtkBox">
+            <property name="halign">center</property>
+            <property name="hexpand">True</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">&lt;span size="xx-large" weight="bold"&gt;Image&lt;/span&gt;
+</property>
+                <property name="use-markup">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">application-x-cd-image</property>
+                <property name="pixel-size">64</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="image_file_label"/>
+            </child>
+            <child>
+              <object class="GtkButton" id="choose_file_button">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">filenew</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Choose Image</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="halign">center</property>
+            <property name="hexpand">True</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="halign">center</property>
+            <property name="hexpand">True</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">&lt;span size="xx-large" weight="bold"&gt;Device&lt;/span&gt;
+</property>
+                <property name="use-markup">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">drive-removable-media-usb</property>
+                <property name="pixel-size">64</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="refresh_devices_button">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="halign">center</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">view-refresh-symbolic</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Refresh</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="has-frame">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkDropDown" id="devices_dropdown"/>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="halign">center</property>
+            <property name="hexpand">True</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="halign">center</property>
+            <property name="hexpand">True</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">&lt;span size="xx-large" weight="bold"&gt;Flash&lt;/span&gt;
+</property>
+                <property name="use-markup">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">gtk-go-forward-ltr</property>
+                <property name="pixel-size">64</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="placeholder">
+                <property name="label"> </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="flash_button">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">gtk-go-forward-ltr</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Flash!</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+    <property name="title">Simple USB Flasher</property>
+  </object>
+  <object class="GtkFileChooserNative" id="file_chooser">
+    <property name="accept-label">Select</property>
+    <property name="cancel-label">Cancel</property>
+    <property name="title">Choose an Image</property>
+  </object>
+</interface>

@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+
+import sys
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import Gtk
+import argparse
+import subprocess
+
+parser = argparse.ArgumentParser(description="APP DESCRIPTION HERE")
+
+parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+
+args = parser.parse_args()
+def log(message):
+    if args.verbose:
+        print(message)
+
+class app(Gtk.Application):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.connect('activate', self.on_activate)
+
+    def on_activate(self, app):
+        # Create a Builder
+        builder = Gtk.Builder()
+        builder.add_from_file("main.ui")
+
+        self.choose_file_button = builder.get_object("choose_file_button")
+        self.choose_file_button.connect("clicked", self.choose_file)
+        self.file_chooser = builder.get_object("file_chooser")
+        self.file_chooser.connect("response", self.file_chosen)
+        self.refresh_devices_button = builder.get_object("refresh_devices_button")
+        self.refresh_devices_button.connect("clicked", self.refresh_devices)
+        self.devices_dropdown = builder.get_object("devices_dropdown")
+        self.refresh_devices(self.refresh_devices_button)
+
+        # Obtain and show the main window
+        self.main_window = builder.get_object("main_window")
+        self.main_window.set_application(self)  # Application will close once it no longer has active windows attached to it
+        self.main_window.present()
+
+    def choose_file(self, button):
+        self.file_chooser.show()
+
+    def file_chosen(self, file, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            file = file.get_file().get_path()
+            file_type = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh', f"{file}"])
+            if file_type.returncode != 0:
+                log(f"WARNING: File '{file}' is not a supported file type.")
+
+    def refresh_devices(self, button):
+        devices = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh'], capture_output=True, text=True)
+        devices = devices.stdout.splitlines()
+        sizes = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-human-sizes.sh'], capture_output=True, text=True)
+        sizes = sizes.stdout.splitlines()
+        labels = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-labels.sh'], capture_output=True, text=True)
+        labels = labels.stdout.splitlines()
+        counter = 0
+        device_list = []
+        for device in devices:
+            device_list.append(f"{device} - {sizes[counter]} - {labels[counter]}")
+            counter = counter + 1
+        device_list = Gtk.StringList.new(device_list)
+        self.devices_dropdown.set_model(device_list)
+
+app = app(application_id="net.CGFromJPT.Simple-USB-Flasher")
+app.run()
+
