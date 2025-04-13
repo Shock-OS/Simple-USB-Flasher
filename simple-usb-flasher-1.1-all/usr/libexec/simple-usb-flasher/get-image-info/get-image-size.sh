@@ -34,8 +34,6 @@ case "$type" in
     .gz)
         size="$(zcat -l "$image" | awk 'NR==2 {print $2}')"
         ;;
-    .iso)
-        tempdir="$(mktemp -d)"
     .lzma)
         size="$(lzcat "$image" | wc -c)"
         ;;
