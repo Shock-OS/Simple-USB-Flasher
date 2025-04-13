@@ -85,7 +85,7 @@ local labels=()
 if (( ${#devices[@]} > 0 ))
 then
     mapfile -t sizes <<< "$(/usr/libexec/simple-usb-flasher/get-devices-info/get-human-sizes.sh)"
-    mapfile -t labels <<< "$(/usr/libexec/simple-usb-flasher/get-labels.sh)"
+    mapfile -t labels <<< "$(/usr/libexec/simple-usb-flasher/get-devices-info/get-labels.sh)"
     printf "%-10s %-10s %-10s\n" "DEVICE" "SIZE" "LABEL"
     echo '---------------------------------'
     n="${#devices[@]}"
