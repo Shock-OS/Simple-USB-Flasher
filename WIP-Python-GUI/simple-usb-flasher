@@ -3,11 +3,13 @@
 import sys
 import gi
 gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio, GLib
 import argparse
 import subprocess
+import threading
+from pathlib import Path
 
-parser = argparse.ArgumentParser(description="APP DESCRIPTION HERE")
+parser = argparse.ArgumentParser(description="Flash bootable images to block devices such as USB sticks, USB HDDs/SSDs, and SD cards.")
 
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
 
@@ -26,6 +28,9 @@ class app(Gtk.Application):
         builder = Gtk.Builder()
         builder.add_from_file("main.ui")
 
+        self.stack = builder.get_object("stack")
+        self.stack.set_visible_child_name("start")
+        self.image_file_label = builder.get_object("image_file_label")
         self.choose_file_button = builder.get_object("choose_file_button")
         self.choose_file_button.connect("clicked", self.choose_file)
         self.file_chooser = builder.get_object("file_chooser")
@@ -34,36 +39,144 @@ class app(Gtk.Application):
         self.refresh_devices_button.connect("clicked", self.refresh_devices)
         self.devices_dropdown = builder.get_object("devices_dropdown")
         self.refresh_devices(self.refresh_devices_button)
+        self.flash_button = builder.get_object("flash_button")
+        self.flash_button.connect("clicked", self.flash1)
+        self.ask_for_method_checkbox = builder.get_object("ask_for_method_checkbox")
+        self.progress_bar_label = builder.get_object("progress_bar_label")
+        self.progress_bar_spinner = builder.get_object("progress_bar_spinner")
+        self.progress_bar = builder.get_object("progress_bar")
+
+        builder.add_from_file("dialog.ui")
+        self.dialog_window = builder.get_object("dialog_window")
+        self.dialog_window.connect("close-request", self.close_dialog)
+        self.dialog_type_label = builder.get_object("dialog_type_label")
+        self.dialog_message = builder.get_object("dialog_message")
+        self.dialog_close_button = builder.get_object("dialog_close_button")
+        self.dialog_close_button.connect("clicked", self.close_dialog)
+
+        self.settings = Gio.Settings.new("net.carsongfromjpt.simple-usb-flasher.gui-settings")
+        self.settings.bind("ask-for-method", self.ask_for_method_checkbox, "active", Gio.SettingsBindFlags.DEFAULT)
+
+        builder.add_from_file("methods.ui")
+        self.methods_dialog = builder.get_object("methods_dialog")
+        self.methods_dialog.connect("close-request", self.methods_dialog_close)
+        self.methods_dropdown = builder.get_object("methods_dropdown")
+        self.method_ok_button = builder.get_object("method_ok_button")
+        self.method_ok_button.connect("clicked", self.method_chosen)
 
         # Obtain and show the main window
         self.main_window = builder.get_object("main_window")
+        self.dialog_window.set_transient_for(self.main_window)
+        self.file_chooser.set_transient_for(self.main_window)
+        self.methods_dialog.set_transient_for(self.main_window)
+        self.main_window.connect("close-request", self.close_request)
         self.main_window.set_application(self)  # Application will close once it no longer has active windows attached to it
         self.main_window.present()
 
     def choose_file(self, button):
+        self.main_window.set_sensitive(False)
         self.file_chooser.show()
 
     def file_chosen(self, file, response):
+        self.main_window.set_sensitive(True)
         if response == Gtk.ResponseType.ACCEPT:
-            file = file.get_file().get_path()
-            file_type = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh', f"{file}"])
+            self.image_path = file.get_file().get_path()
+            file_type = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh', f"{self.image_path}"])
+            self.image_file_label.set_label(Path(self.image_path).name)
             if file_type.returncode != 0:
-                log(f"WARNING: File '{file}' is not a supported file type.")
+                self.show_dialog("w", f"File '{self.image_path}' is not a supported file type.")
 
     def refresh_devices(self, button):
         devices = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh'], capture_output=True, text=True)
-        devices = devices.stdout.splitlines()
-        sizes = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-human-sizes.sh'], capture_output=True, text=True)
-        sizes = sizes.stdout.splitlines()
-        labels = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-labels.sh'], capture_output=True, text=True)
-        labels = labels.stdout.splitlines()
-        counter = 0
-        device_list = []
-        for device in devices:
-            device_list.append(f"{device} - {sizes[counter]} - {labels[counter]}")
-            counter = counter + 1
-        device_list = Gtk.StringList.new(device_list)
-        self.devices_dropdown.set_model(device_list)
+        devices = devices.stdout.strip().splitlines()
+        if devices:
+            sizes = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-human-sizes.sh'], capture_output=True, text=True)
+            sizes = sizes.stdout.strip().splitlines()
+            labels = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-labels.sh'], capture_output=True, text=True)
+            labels = labels.stdout.strip().splitlines()
+            counter = 0
+            device_list = []
+            for device in devices:
+                device_list.append(f"{device} - {sizes[counter]} - {labels[counter]}")
+                counter = counter + 1
+            device_list = Gtk.StringList.new(device_list)
+            self.devices_dropdown.set_model(device_list)
+        else:
+            self.devices_dropdown.set_model(Gtk.StringList.new([]))
+
+    def show_dialog(self, message_type, message):
+        log(message)
+        if message_type == "e":
+            self.dialog_window.set_title("Error")
+            self.dialog_type_label.set_label("<b><big>Error</big></b>")
+        elif message_type == "w":
+            self.dialog_window.set_title("Warning")
+            self.dialog_type_label.set_label("<b><big>Warning</big></b>")
+        self.dialog_message.set_label(message)
+        self.main_window.set_sensitive(False)
+        self.dialog_window.set_visible(True)
+
+    def method_chosen(self, button):
+        self.methods_dialog.set_visible(False)
+        self.looptrue = True
+        self.loop.quit()
+
+    def methods_dialog_close(self, button):
+        self.methods_dialog.set_visible(False)
+        self.looptrue = False
+        self.loop.quit()
+
+    def get_image_size(self, image):
+        image_size = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh', f"{image}"], capture_output=True, text=True)
+        self.image_size = int(image_size.stdout.strip())
+        GLib.idle_add(self.flash2)
+        
+    def flash1(self, button):
+        try:
+            image = self.image_path
+        except:
+            self.show_dialog("e", "No image to flash. Please select a bootable image and try again.")
+            return
+        selected_device_index = self.devices_dropdown.get_selected()
+        model = self.devices_dropdown.get_model()
+        device = model.get_string(selected_device_index)
+        if device is None:
+            self.show_dialog("e", "No device to flash. Please insert and select a USB stick, USB HDD/SSD, or SD card to flash and try again.")
+            return
+        else:
+            device = device.split(" ", 1)[0]
+            self.device = device
+        methods = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-methods.sh', f"{image}"], capture_output=True, text=True)
+        if methods.returncode == 0:
+            methods = methods.stdout.strip().splitlines()
+            methods = Gtk.StringList.new(methods)
+            self.methods_dropdown.set_model(methods)
+            self.methods_dialog.set_visible(True)
+            self.loop = GLib.MainLoop()
+            self.loop.run()
+            if self.looptrue:
+                self.stack.set_visible_child_name("flash")
+                self.progress_bar_label.set_label("Getting image size (this may take a while)...")
+                self.progress_bar_spinner.set_spinning(True)
+                threading.Thread(target=self.get_image_size(image), daemon=True).start()
+
+    def flash2(self):
+        image = self.image_path
+        image_size = self.image_size
+        device = self.device
+        device_size = subprocess.run([f"lsblk -bno SIZE {device} | head -n 1"], shell=True, capture_output=True, text=True)
+        device_size = int(device_size.stdout.strip())
+        self.progress_bar_spinner.set_spinning(False)
+
+    def close_dialog(self, button):
+        self.dialog_window.set_visible(False)
+        self.main_window.set_sensitive(True)
+
+    def close_request(self, button):
+        if not self.dialog_window.get_visible():
+            sys.exit()
+        else:
+            return False
 
 app = app(application_id="net.CGFromJPT.Simple-USB-Flasher")
 app.run()
