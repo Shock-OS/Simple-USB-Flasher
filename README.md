@@ -6,7 +6,7 @@ Simply download and install the .deb package. It should work on most modern Debi
 
 ## Disclaimer
 
-This program has rigorous built-in safeguards to prevent flashing the computer's internal hard drive. It also displays a warning before flashing/erasing a device with an option to cancel. However, this program comes with ABSOLUTELY NO WARRANTY, and I am not responsible for unwanted data loss. The program is designed to only identify anything mounted under `/media` or `/mnt` as a removable storage device. If you have any internal/external drives with important data mounted as external storage volumes in these locations, the program may recognize them as a USB stick, so be careful not to select them. YOU HAVE BEEN WARNED!
+This program has rigorous built-in safeguards to prevent flashing the computer's internal hard drive. It also displays a warning before flashing/erasing a device with an option to cancel. However, this program comes with <b>ABSOLUTELY NO WARRANTY</b>, and I am not responsible for unwanted data loss. The program is designed to only identify anything mounted under `/media` or `/mnt` as a removable storage device. If you have any internal/external drives with important data mounted as external storage volumes in these locations, the program may recognize them as a USB stick, so be careful not to select them. <b>YOU HAVE BEEN WARNED!</b>
 
 ## Installation
 
