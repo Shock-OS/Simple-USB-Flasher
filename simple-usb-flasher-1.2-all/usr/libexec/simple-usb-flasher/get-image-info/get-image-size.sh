@@ -58,6 +58,5 @@ case "$type" in
         size="$(stat --format="%s" "$image")"
         ;;
 esac
-size=$(( size + $(( 512 * 1024 * 1024 )) ))
 echo "$size"
 

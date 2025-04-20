@@ -1,95 +1,154 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.94.1 -->
 <interface>
-  <!-- interface-name simple-usb-flasher.ui -->
-  <requires lib="gtk" version="4.12"/>
+  <requires lib="gtk" version="4.8"/>
   <object class="GtkApplicationWindow" id="main_window">
-    <property name="child">
-      <object class="GtkStack" id="stack">
+    <property name="icon-name">drive-removable-media-usb</property>
+    <property name="title">Simple USB Flasher</property>
+    <child>
+      <object class="GtkBox">
         <property name="margin-bottom">10</property>
-        <property name="margin-end">50</property>
-        <property name="margin-start">50</property>
+        <property name="margin-end">10</property>
+        <property name="margin-start">10</property>
         <property name="margin-top">10</property>
-        <property name="transition-type">slide-left</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">5</property>
         <child>
-          <object class="GtkStackPage">
-            <property name="child">
-              <object class="GtkBox">
-                <property name="hexpand">True</property>
-                <property name="spacing">10</property>
-                <property name="valign">center</property>
-                <child>
+          <object class="GtkStack" id="stack">
+            <property name="margin-bottom">10</property>
+            <property name="margin-end">10</property>
+            <property name="margin-start">10</property>
+            <property name="margin-top">10</property>
+            <property name="transition-type">slide-left-right</property>
+            <child>
+              <object class="GtkStackPage" id="start">
+                <property name="child">
                   <object class="GtkBox">
-                    <property name="halign">center</property>
-                    <property name="hexpand">True</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Image&lt;/span&gt;
-</property>
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Choose an Action&lt;/span&gt;</property>
                         <property name="use-markup">True</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImage">
-                        <property name="icon-name">application-x-cd-image</property>
-                        <property name="pixel-size">64</property>
+                      <object class="GtkToggleButton" id="flash_toggle_button">
+                        <property name="child">
+                          <object class="GtkBox">
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkImage"/>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Flash</property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                        <property name="halign">center</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="image_file_label"/>
+                      <object class="GtkLabel">
+                        <property name="label">&lt;b&gt; - OR - &lt;/b&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
                     </child>
                     <child>
-                      <object class="GtkButton" id="choose_file_button">
+                      <object class="GtkToggleButton" id="erase_toggle_button">
                         <property name="child">
                           <object class="GtkBox">
                             <property name="spacing">5</property>
                             <child>
                               <object class="GtkImage">
-                                <property name="icon-name">filenew</property>
+                                <property name="icon-name">edit-delete-symbolic</property>
                               </object>
                             </child>
                             <child>
                               <object class="GtkLabel">
-                                <property name="label">Choose Image</property>
+                                <property name="label">Erase</property>
                               </object>
                             </child>
                           </object>
                         </property>
+                        <property name="halign">center</property>
                       </object>
                     </child>
                   </object>
-                </child>
-                <child>
-                  <object class="GtkSeparator">
-                    <property name="halign">center</property>
-                  </object>
-                </child>
-                <child>
+                </property>
+                <property name="name">start</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="image">
+                <property name="child">
                   <object class="GtkBox">
-                    <property name="halign">center</property>
-                    <property name="hexpand">True</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Device&lt;/span&gt;
-</property>
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Choose an Image&lt;/span&gt;</property>
                         <property name="use-markup">True</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImage">
-                        <property name="icon-name">drive-removable-media-usb</property>
-                        <property name="pixel-size">64</property>
+                      <object class="GtkFileChooserWidget" id="file_chooser"/>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="ask_for_method_checkbox">
+                        <property name="label">Ask for decompression method if multiple are available</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="name">image</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="ask_decompression_method">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Choose a Decompression Method&lt;/span&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkDropDown" id="decompression_methods_dropdown">
+                        <property name="halign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="name">ask_decompression_method</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="device">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Choose a Device&lt;/span&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkDropDown" id="devices_dropdown">
+                        <property name="halign">center</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkButton" id="refresh_devices_button">
                         <property name="child">
                           <object class="GtkBox">
-                            <property name="halign">center</property>
                             <property name="spacing">5</property>
                             <child>
                               <object class="GtkImage">
@@ -103,138 +162,433 @@
                             </child>
                           </object>
                         </property>
+                        <property name="halign">center</property>
                         <property name="has-frame">False</property>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkDropDown" id="devices_dropdown"/>
-                    </child>
                   </object>
-                </child>
-                <child>
-                  <object class="GtkSeparator">
-                    <property name="halign">center</property>
-                  </object>
-                </child>
-                <child>
+                </property>
+                <property name="name">device</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="erase_opts">
+                <property name="child">
                   <object class="GtkBox">
                     <property name="halign">center</property>
-                    <property name="hexpand">True</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Flash&lt;/span&gt;
-</property>
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Erase Options&lt;/span&gt;</property>
                         <property name="use-markup">True</property>
                       </object>
                     </child>
                     <child>
+                      <object class="GtkLabel" id="erase_device_label">
+                        <property name="halign">start</property>
+                        <property name="label">You can assign a new label to device [DEVICE HERE]</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">The criteria for the label is as follows:</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">1. Must be 1-10 characters long</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">2. Only letters, numbers, hypens, and underscores</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="halign">center</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label">Label:</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="erase_label_entry"/>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="halign">center</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label">Filesystem:</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="erase_fs_cb">
+                            <items>
+                              <item id="fat32">FAT32</item>
+                              <item id="exfat">exFAT</item>
+                              <item id="ntfs">NTFS</item>
+                              <item id="ext4">EXT4</item>
+                            </items>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="name">erase_opts</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="are_you_sure">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <child>
                       <object class="GtkImage">
-                        <property name="icon-name">gtk-go-forward-ltr</property>
-                        <property name="pixel-size">64</property>
+                        <property name="icon-name">important</property>
+                        <property name="pixel-size">128</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="placeholder">
-                        <property name="label"> </property>
+                      <object class="GtkLabel">
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Are You Sure?&lt;/span&gt;</property>
+                        <property name="use-markup">True</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkButton" id="flash_button">
+                      <object class="GtkLabel" id="are_you_sure_message">
+                        <property name="justify">center</property>
+                        <property name="use-markup">True</property>
+                        <property name="wrap">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="are_you_sure_yes_button">
                         <property name="child">
                           <object class="GtkBox">
                             <property name="spacing">5</property>
                             <child>
                               <object class="GtkImage">
-                                <property name="icon-name">gtk-go-forward-ltr</property>
+                                <property name="icon-name">emblem-default-symbolic</property>
                               </object>
                             </child>
                             <child>
                               <object class="GtkLabel">
-                                <property name="label">Flash!</property>
+                                <property name="label">Yes, Continue</property>
                               </object>
                             </child>
                           </object>
                         </property>
+                        <property name="halign">center</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">&lt;b&gt;- OR -&lt;/b&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="are_you_sure_no_button">
+                        <property name="child">
+                          <object class="GtkBox">
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">window-close-symbolic</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">No, Cancel</property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                        <property name="halign">center</property>
                       </object>
                     </child>
                   </object>
-                </child>
+                </property>
+                <property name="name">are_you_sure</property>
               </object>
-            </property>
-            <property name="name">start</property>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="flash_erase">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkLabel" id="flash_erase_title">
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Flashing...&lt;/span&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">drive-removable-media-usb</property>
+                        <property name="pixel-size">128</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="halign">center</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkLabel" id="progress_bar_label">
+                            <property name="wrap">True</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSpinner" id="progress_bar_spinner"/>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkProgressBar" id="progress_bar"/>
+                    </child>
+                  </object>
+                </property>
+                <property name="name">flash_erase</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="done">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Done!&lt;/span&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">emblem-default-symbolic</property>
+                        <property name="pixel-size">128</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="done_label">
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="do_another_button">
+                        <property name="child">
+                          <object class="GtkBox">
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">view-refresh-symbolic</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Do Another!</property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                        <property name="halign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="name">done</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="error_warning">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkLabel" id="error_warning_title">
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Error&lt;/span&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="error_warning_icon">
+                        <property name="icon-name">dialog-error</property>
+                        <property name="pixel-size">128</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="error_warning_message">
+                        <property name="justify">center</property>
+                        <property name="wrap">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="name">error_warning</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage" id="image_too_big_warning">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">&lt;span size="xx-large" weight="bold"&gt;Warning&lt;/span&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">important</property>
+                        <property name="pixel-size">128</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="image_too_big_message">
+                        <property name="justify">center</property>
+                        <property name="wrap">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="image_too_big_no_button">
+                        <property name="child">
+                          <object class="GtkBox">
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">window-close-symbolic</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">No, Don't Flash Image</property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                        <property name="halign">center</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">&lt;b&gt;- OR -&lt;/b&gt;</property>
+                        <property name="use-markup">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="image_too_big_yes_button">
+                        <property name="child">
+                          <object class="GtkBox">
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">emblem-default-symbolic</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Yes, Continue Anyway</property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                        <property name="halign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="name">image_too_big_warning</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>
-          <object class="GtkStackPage">
-            <property name="child">
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
-                <property name="spacing">5</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">drive-removable-media-usb</property>
-                    <property name="pixel-size">128</property>
-                  </object>
-                </child>
-                <child>
+          <object class="GtkBox" id="pager_buttons_box">
+            <property name="homogeneous">True</property>
+            <property name="valign">end</property>
+            <property name="vexpand">True</property>
+            <child>
+              <object class="GtkButton" id="back_button">
+                <property name="child">
                   <object class="GtkBox">
-                    <property name="halign">center</property>
                     <property name="spacing">5</property>
                     <child>
-                      <object class="GtkLabel" id="progress_bar_label"/>
+                      <object class="GtkImage">
+                        <property name="icon-name">gtk-go-back-ltr</property>
+                      </object>
                     </child>
                     <child>
-                      <object class="GtkSpinner" id="progress_bar_spinner"/>
+                      <object class="GtkLabel">
+                        <property name="label">Back</property>
+                      </object>
                     </child>
                   </object>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="progress_bar"/>
-                </child>
+                </property>
+                <property name="halign">start</property>
               </object>
-            </property>
-            <property name="name">flash</property>
+            </child>
+            <child>
+              <object class="GtkButton" id="dismiss_button">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">window-close-symbolic</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Dismiss</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="halign">center</property>
+                <property name="visible">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="next_button">
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="next_button_label">
+                        <property name="label">Next</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">gtk-go-forward-ltr</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+                <property name="halign">end</property>
+                <property name="hexpand">True</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>
-    </property>
-    <property name="title">Simple USB Flasher</property>
-    <property name="titlebar">
-      <object class="GtkHeaderBar">
-        <property name="title-widget">
-          <object class="GtkBox">
-            <property name="spacing">5</property>
-            <child>
-              <object class="GtkLabel">
-                <property name="label">&lt;b&gt;Simple USB Flasher&lt;/b&gt;</property>
-                <property name="use-markup">True</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuButton">
-                <property name="direction">none</property>
-                <property name="icon-name">open-menu-symbolic</property>
-                <property name="popover">
-                  <object class="GtkPopover">
-                    <property name="child">
-                      <object class="GtkCheckButton" id="ask_for_method_checkbox">
-                        <property name="label">Ask for decompression method when multiple are available</property>
-                      </object>
-                    </property>
-                  </object>
-                </property>
-              </object>
-            </child>
-          </object>
-        </property>
-      </object>
-    </property>
-  </object>
-  <object class="GtkFileChooserNative" id="file_chooser">
-    <property name="accept-label">Select</property>
-    <property name="cancel-label">Cancel</property>
-    <property name="title">Choose an Image</property>
+    </child>
   </object>
 </interface>

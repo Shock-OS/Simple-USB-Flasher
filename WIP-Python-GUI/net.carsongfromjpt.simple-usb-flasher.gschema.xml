@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
   <schema id="net.carsongfromjpt.simple-usb-flasher.gui-settings" path="/net/carsongfromjpt/simple-usb-flasher/gui-settings/">
-    <key name="ask-for-method" type="b">
+    <key name="ask-for-decompression-method" type="b">
         <default>false</default>
         <summary>Whether or not to ask for decompression method when multiple are available.</summary>
     </key>

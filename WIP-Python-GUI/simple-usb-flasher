@@ -8,6 +8,9 @@ import argparse
 import subprocess
 import threading
 from pathlib import Path
+import re
+import time
+import os
 
 parser = argparse.ArgumentParser(description="Flash bootable images to block devices such as USB sticks, USB HDDs/SSDs, and SD cards.")
 
@@ -28,63 +31,153 @@ class app(Gtk.Application):
         builder = Gtk.Builder()
         builder.add_from_file("main.ui")
 
+        self.page = 0
+        self.pages = ['start', 'image', 'ask_decompression_method', 'device', 'erase_opts', 'are_you_sure', 'flash_erase', 'done']
+
         self.stack = builder.get_object("stack")
-        self.stack.set_visible_child_name("start")
-        self.image_file_label = builder.get_object("image_file_label")
-        self.choose_file_button = builder.get_object("choose_file_button")
-        self.choose_file_button.connect("clicked", self.choose_file)
+        self.pager_buttons_box = builder.get_object("pager_buttons_box")
+        self.next_button = builder.get_object("next_button")
+        self.next_button.connect("clicked", self.change_page)
+        self.back_button = builder.get_object("back_button")
+        self.back_button.connect("clicked", self.change_page)
+        self.dismiss_button = builder.get_object("dismiss_button")
+        self.dismiss_button.connect("clicked", self.dismiss_error_warning)
+        self.flash_toggle_button = builder.get_object("flash_toggle_button")
+        self.erase_toggle_button = builder.get_object("erase_toggle_button")
+        self.erase_toggle_button.set_group(self.flash_toggle_button)
+        self.erase_device_label = builder.get_object("erase_device_label")
+        self.erase_label_entry = builder.get_object("erase_label_entry")
+        self.erase_label_entry.set_text('USB_STICK')
+        self.erase_fs_cb = builder.get_object("erase_fs_cb")
+        self.erase_fs_cb.set_active_id('fat32')
+        self.flash_toggle_button.set_active(True)
         self.file_chooser = builder.get_object("file_chooser")
-        self.file_chooser.connect("response", self.file_chosen)
         self.refresh_devices_button = builder.get_object("refresh_devices_button")
         self.refresh_devices_button.connect("clicked", self.refresh_devices)
         self.devices_dropdown = builder.get_object("devices_dropdown")
         self.refresh_devices(self.refresh_devices_button)
-        self.flash_button = builder.get_object("flash_button")
-        self.flash_button.connect("clicked", self.flash1)
         self.ask_for_method_checkbox = builder.get_object("ask_for_method_checkbox")
+        self.decompression_methods_dropdown = builder.get_object("decompression_methods_dropdown")
+        self.are_you_sure_message = builder.get_object("are_you_sure_message")
+        self.are_you_sure_yes_button = builder.get_object("are_you_sure_yes_button")
+        self.are_you_sure_yes_button.connect("clicked", self.are_you_sure, True)
+        self.are_you_sure_no_button = builder.get_object("are_you_sure_no_button")
+        self.are_you_sure_no_button.connect("clicked", self.are_you_sure, False)
+        self.flash_erase_title = builder.get_object("flash_erase_title")
         self.progress_bar_label = builder.get_object("progress_bar_label")
         self.progress_bar_spinner = builder.get_object("progress_bar_spinner")
         self.progress_bar = builder.get_object("progress_bar")
-
-        builder.add_from_file("dialog.ui")
-        self.dialog_window = builder.get_object("dialog_window")
-        self.dialog_window.connect("close-request", self.close_dialog)
-        self.dialog_type_label = builder.get_object("dialog_type_label")
-        self.dialog_message = builder.get_object("dialog_message")
-        self.dialog_close_button = builder.get_object("dialog_close_button")
-        self.dialog_close_button.connect("clicked", self.close_dialog)
+        self.done_label = builder.get_object("done_label")
+        self.do_another_button = builder.get_object("do_another_button")
+        self.do_another_button.connect("clicked", self.change_page, 'start')
+        self.error_warning_title = builder.get_object("error_warning_title")
+        self.error_warning_icon = builder.get_object("error_warning_icon")
+        self.error_warning_message = builder.get_object("error_warning_message")
+        self.image_too_big_message = builder.get_object("image_too_big_message")
+        self.image_too_big_no_button = builder.get_object("image_too_big_no_button")
+        self.image_too_big_no_button.connect("clicked", self.quitloop, False)
+        self.image_too_big_yes_button = builder.get_object("image_too_big_yes_button")
+        self.image_too_big_yes_button.connect("clicked", self.quitloop, True)
 
         self.settings = Gio.Settings.new("net.carsongfromjpt.simple-usb-flasher.gui-settings")
-        self.settings.bind("ask-for-method", self.ask_for_method_checkbox, "active", Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind("ask-for-decompression-method", self.ask_for_method_checkbox, "active", Gio.SettingsBindFlags.DEFAULT)
 
-        builder.add_from_file("methods.ui")
-        self.methods_dialog = builder.get_object("methods_dialog")
-        self.methods_dialog.connect("close-request", self.methods_dialog_close)
-        self.methods_dropdown = builder.get_object("methods_dropdown")
-        self.method_ok_button = builder.get_object("method_ok_button")
-        self.method_ok_button.connect("clicked", self.method_chosen)
+        self.loop = GLib.MainLoop()
+
+        self.change_page(page_name='start')
 
         # Obtain and show the main window
         self.main_window = builder.get_object("main_window")
-        self.dialog_window.set_transient_for(self.main_window)
-        self.file_chooser.set_transient_for(self.main_window)
-        self.methods_dialog.set_transient_for(self.main_window)
-        self.main_window.connect("close-request", self.close_request)
         self.main_window.set_application(self)  # Application will close once it no longer has active windows attached to it
         self.main_window.present()
 
-    def choose_file(self, button):
-        self.main_window.set_sensitive(False)
-        self.file_chooser.show()
-
-    def file_chosen(self, file, response):
-        self.main_window.set_sensitive(True)
-        if response == Gtk.ResponseType.ACCEPT:
-            self.image_path = file.get_file().get_path()
-            file_type = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh', f"{self.image_path}"])
-            self.image_file_label.set_label(Path(self.image_path).name)
-            if file_type.returncode != 0:
-                self.show_dialog("w", f"File '{self.image_path}' is not a supported file type.")
+    def change_page(self, button=None, page_name=None):
+        if button is None and page_name is None:
+            raise ValueError("You must provide either 'button' or 'page_name'")
+        def get_current_page_name():
+            name = self.stack.get_visible_child_name()
+            return name
+        def set_page_from_name(name):
+            self.page = self.pages.index(name)
+        if page_name:
+            set_page_from_name(page_name)
+        else:
+            if button == self.next_button and self.page < 7:
+                if get_current_page_name() == 'image':
+                    if not self.get_image():
+                        self.show_error_warning('e', 'You have not selected an image to flash. Please select a bootable image to flash.')
+                        set_page_from_name('image')
+                    else:
+                        if not self.get_image_type():
+                            image = self.get_image()
+                            self.show_error_warning('w', f"'{image}' does not appear to be a supported image type. The program can still attempt to flash this file, but there is no guarantee that doing so will result in a bootable drive.")
+                        if self.settings.get_boolean('ask-for-decompression-method') and self.get_methods():
+                            set_page_from_name('ask_decompression_method')
+                        else:
+                            set_page_from_name('device')
+                elif get_current_page_name() == 'device':
+                    if not self.get_device():
+                        if self.flash_toggle_button.get_active():
+                            action='flash'
+                        else:
+                            action='erase'
+                        self.show_error_warning('e', f'You have not selected a device to {action}. Please insert and select a USB stick, USB HDD/SSD, or SD card to {action}.')
+                        set_page_from_name('device')
+                    else:
+                        if self.flash_toggle_button.get_active():
+                            set_page_from_name('are_you_sure')
+                        else:
+                            set_page_from_name('erase_opts')
+                elif get_current_page_name() == 'start' and self.erase_toggle_button.get_active():
+                    set_page_from_name('device')
+                else:
+                    self.page = self.page + 1
+            elif button == self.back_button and self.page > 0:
+                if get_current_page_name() == 'device':
+                    if self.erase_toggle_button.get_active():
+                        set_page_from_name('start')
+                    elif self.settings.get_boolean('ask-for-decompression-method') and self.get_methods(justcheck=True):
+                        set_page_from_name('ask_decompression_method')
+                    else:
+                        set_page_from_name('image')
+                else:
+                    self.page = self.page - 1
+        next_page_name = self.pages[self.page]
+        print(next_page_name) #DEBUG
+        if next_page_name == 'are_you_sure' or next_page_name == 'flash_erase':
+            self.pager_buttons_box.set_visible(False)
+            print(self.get_device()) #DEBUG
+        else:
+            self.pager_buttons_box.set_visible(True)
+        if next_page_name == 'error_warning':
+            self.dismiss_button.set_visible(True)
+        else:
+            self.dismiss_button.set_visible(False)
+        if next_page_name == 'start':
+            self.back_button.set_visible(False)
+            self.next_button.set_visible(True)
+        else:
+            self.back_button.set_visible(True)
+            self.next_button.set_visible(True)
+        if next_page_name == 'image':
+            self.image_size = None
+        if next_page_name == 'device':
+            self.refresh_devices(None)
+        if next_page_name == 'erase_opts':
+            device = self.get_device()
+            self.erase_device_label.set_label(f"You can assign a new label to device {device}.")
+        if next_page_name == 'are_you_sure':
+            device = self.get_device()
+            device_name = self.get_device(mode='name')
+            if self.flash_toggle_button.get_active():
+                image = self.get_image()
+                self.are_you_sure_message.set_label(f"Are you sure you would like to flash image '{image}' to device '{device_name}'? <b>WARNING: THIS WILL ERASE ALL DATA ON DEVICE {device}! YOU HAVE BEEN WARNED!</b>")
+            else:
+                self.are_you_sure_message.set_label(f"Are you sure you would like to erase device '{device_name}'? <b>WARNING: THIS WILL ERASE ALL DATA ON DEVICE {device}! YOU HAVE BEEN WARNED!</b>")
+        if next_page_name == 'done':
+            self.pager_buttons_box.set_visible(False)
+        print(self.page) #DEBUG
+        self.stack.set_visible_child_name(next_page_name)
 
     def refresh_devices(self, button):
         devices = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh'], capture_output=True, text=True)
@@ -104,79 +197,207 @@ class app(Gtk.Application):
         else:
             self.devices_dropdown.set_model(Gtk.StringList.new([]))
 
-    def show_dialog(self, message_type, message):
+    def show_error_warning(self, message_type, message, page_name=None):
         log(message)
         if message_type == "e":
-            self.dialog_window.set_title("Error")
-            self.dialog_type_label.set_label("<b><big>Error</big></b>")
+            self.error_warning_title.set_label('<span size="xx-large" weight="bold">Error</span>')
+            self.error_warning_icon.set_from_icon_name("dialog-error")
         elif message_type == "w":
-            self.dialog_window.set_title("Warning")
-            self.dialog_type_label.set_label("<b><big>Warning</big></b>")
-        self.dialog_message.set_label(message)
-        self.main_window.set_sensitive(False)
-        self.dialog_window.set_visible(True)
+            self.error_warning_title.set_label('<span size="xx-large" weight="bold">Warning</span>')
+            self.error_warning_icon.set_from_icon_name("important")
+        self.error_warning_message.set_label(message)
+        self.stack.set_visible_child_name("error_warning")
+        self.pager_buttons_box.set_visible(True)
+        self.back_button.set_visible(False)
+        self.next_button.set_visible(False)
+        self.dismiss_button.set_visible(True)
+        self.loop.run()
+        if page_name:
+            self.change_page(page_name=page_name)
 
-    def method_chosen(self, button):
-        self.methods_dialog.set_visible(False)
-        self.looptrue = True
+    def dismiss_error_warning(self, button):
         self.loop.quit()
 
-    def methods_dialog_close(self, button):
-        self.methods_dialog.set_visible(False)
-        self.looptrue = False
-        self.loop.quit()
-
-    def get_image_size(self, image):
-        image_size = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh', f"{image}"], capture_output=True, text=True)
-        self.image_size = int(image_size.stdout.strip())
-        GLib.idle_add(self.flash2)
-        
-    def flash1(self, button):
+    def get_image(self):
         try:
-            image = self.image_path
+            image = self.file_chooser.get_file().get_path()
+            return image
         except:
-            self.show_dialog("e", "No image to flash. Please select a bootable image and try again.")
-            return
+            return False
+
+    def get_image_type(self):
+        try:
+            image = self.get_image()
+        except:
+            return False
+        file_type = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh', f"{image}"], capture_output=True, text=True)
+        if file_type.returncode == 0:
+            file_type = file_type.stdout.strip()
+            return file_type
+        else:
+            return False
+
+    def get_methods(self, justcheck=False, getdefault=False):
+        if justcheck and getdefault:
+            raise ValueError("Cannot use 'justcheck=True' and 'getdefault=True' at the same time.")
+        image = self.get_image()
+        methods = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-methods.sh', f"{image}"], capture_output=True, text=True)
+        print("EX:", methods.returncode) #DEBUG
+        if methods.returncode == 0:
+            methods = methods.stdout.strip().splitlines()
+            if getdefault:
+                return methods[0]
+            elif not justcheck:
+                methods = Gtk.StringList.new(methods)
+                self.decompression_methods_dropdown.set_model(methods)
+            return True
+        else:
+            return False
+
+    def get_device(self, mode=None):
         selected_device_index = self.devices_dropdown.get_selected()
         model = self.devices_dropdown.get_model()
         device = model.get_string(selected_device_index)
         if device is None:
-            self.show_dialog("e", "No device to flash. Please insert and select a USB stick, USB HDD/SSD, or SD card to flash and try again.")
-            return
+            return False
         else:
-            device = device.split(" ", 1)[0]
-            self.device = device
-        methods = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-methods.sh', f"{image}"], capture_output=True, text=True)
-        if methods.returncode == 0:
-            methods = methods.stdout.strip().splitlines()
-            methods = Gtk.StringList.new(methods)
-            self.methods_dropdown.set_model(methods)
-            self.methods_dialog.set_visible(True)
-            self.loop = GLib.MainLoop()
-            self.loop.run()
-            if self.looptrue:
-                self.stack.set_visible_child_name("flash")
-                self.progress_bar_label.set_label("Getting image size (this may take a while)...")
-                self.progress_bar_spinner.set_spinning(True)
-                threading.Thread(target=self.get_image_size(image), daemon=True).start()
+            if mode != 'name':
+                device = device.split(" ", 1)[0]
+            return device
+
+    def are_you_sure(self, button, yes):
+        if yes:
+            if self.flash_toggle_button.get_active():
+                self.flash1()
+            else:
+                self.erase()
+        else:
+            self.change_page(page_name='start')
+
+    def quitloop(self, button, looptrue):
+        self.looptrue = looptrue
+        self.loop.quit()
+
+    def erase(self):
+        device = self.get_device()
+        fs = self.erase_fs_cb.get_active_id()
+        label = self.erase_label_entry.get_text()
+        def start_erasing():
+            try:
+                #env = os.environ.copy()
+                process = subprocess.run(['pkexec', '/usr/libexec/simple-usb-flasher/erase-device.sh', f"{device}", f"{fs}", f"'{label}'"], check=True)#, env=env)
+            except subprocess.CalledProcessError as error:
+                if error.returncode == 126: # if pkexec failed
+                    self.change_page(page_name='are_you_sure')
+                else:
+                    self.show_error_warning('e', str(error), page_name='start')
+                return False
+            self.done_label.set_label(f"Success! Device {device} has successfully been reformatted! You can now safely remove the device.")
+            self.change_page(page_name='done')
+        self.flash_erase_title.set_label('<span size="xx-large" weight="bold">Erasing...</span>')
+        self.progress_bar_label.set_text(f"Erasing device {device}...")
+        self.progress_bar_spinner.set_spinning(True)
+        self.progress_bar.set_visible(False)
+        thread = threading.Thread(target=start_erasing)
+        thread.start()
+        self.change_page(page_name='flash_erase')
+
+    def flash1(self):
+        image = self.get_image()
+        device = self.get_device
+        def get_image_size():
+            try:
+                self.image_size = subprocess.run(['/usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh', f"{image}"], capture_output=True, text=True, check=True)
+            except subprocess.CalledProcessError as error:
+                self.show_error_warning('e', str(error), page_name='start')
+                return False
+            self.image_size = int(self.image_size.stdout.strip())
+            print(self.image_size) #DEBUG
+            GLib.idle_add(self.flash2)
+        self.flash_erase_title.set_label('<span size="xx-large" weight="bold">Flashing...</span>')
+        self.progress_bar.set_fraction(0.0)
+        self.progress_bar_label.set_text(f"Preparing (please stand by, this may take a while)...")
+        self.progress_bar_spinner.set_spinning(True)
+        self.progress_bar.set_visible(True)
+        if not self.image_size:
+            thread = threading.Thread(target=get_image_size)
+            thread.start()
+        else:
+            self.flash2()
+        self.change_page(page_name='flash_erase')
 
     def flash2(self):
-        image = self.image_path
-        image_size = self.image_size
-        device = self.device
-        device_size = subprocess.run([f"lsblk -bno SIZE {device} | head -n 1"], shell=True, capture_output=True, text=True)
-        device_size = int(device_size.stdout.strip())
-        self.progress_bar_spinner.set_spinning(False)
-
-    def close_dialog(self, button):
-        self.dialog_window.set_visible(False)
-        self.main_window.set_sensitive(True)
-
-    def close_request(self, button):
-        if not self.dialog_window.get_visible():
-            sys.exit()
+        image = self.get_image()
+        device = self.get_device()
+        
+        if self.get_methods(justcheck=True):
+            if self.settings.get_boolean('ask-for-decompression-method'):
+                index = self.decompression_methods_dropdown.get_selected()
+                method = self.decompression_methods_dropdown.get_model().get_string(index)
+            else:
+                method = self.get_methods(getdefault=True)
         else:
+            method = ''
+        def update_progress_bar(fraction):
+            self.progress_bar.set_fraction(fraction)
+            percentage = round(fraction * 100)
+            self.progress_bar_label.set_text(f"Flashing image '{image_basename}' to device {device}... ({percentage}%)")
+        def start_flashing():
+            env = os.environ.copy()
+            process = subprocess.Popen(['pkexec', '/usr/libexec/simple-usb-flasher/write-image.sh', f"{image}", f"{device}", f"{method}"], env=env, stderr=subprocess.PIPE, text=True)
+            for line in process.stderr:
+                line = line.strip()
+                log(line)
+                try:
+                    bytes_written = line.split(" ", 1)[0]
+                    fraction = int(bytes_written) / self.image_size
+                    fraction = round(fraction, 2)
+                    log(fraction)
+                    GLib.idle_add(update_progress_bar, fraction)
+                except:
+                    print("OK") #DEBUG
+            process.wait()
+            if process.returncode == 0:
+                self.done_label.set_label(f"Success! Image '{image_basename}' has successfully been flashed to device {device}! You can now safely remove the device.")
+                self.change_page(page_name='done')
+            elif process.returncode == 126: # if pkexec failed
+                self.change_page(page_name='are_you_sure')
+                return False
+            else:
+                self.show_error_warning('e', f"/usr/libexec/simple-usb-flasher/write-image.sh exited with non-zero status of {process.returncode}.", page_name='start')
+                return False
+        try:
+            device_size = subprocess.run([f"lsblk -bno SIZE {device} | head -n 1"], shell=True, capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError as error:
+            self.show_error_warning('e', str(error), page_name='start')
             return False
+        device_size = int(device_size.stdout.strip())
+        image_basename = self.get_image()
+        image_basename = Path(image_basename).name
+        print(device_size) #DEBUG
+        if ( self.image_size + ( 512 * 1024 * 1024 ) ) > device_size:
+            try:
+                image_size_gb = subprocess.run(['/usr/libexec/simple-usb-flasher/conversions/bytes-to-gb.sh', f"{self.image_size}"], capture_output=True, text=True, check=True).stdout.strip()
+            except subprocess.CalledProcessError as error:
+                self.show_error_warning('e', str(error), page_name='start')
+                return False
+            try:
+                device_size_gb = subprocess.run(['/usr/libexec/simple-usb-flasher/conversions/bytes-to-gb.sh', f"{device_size}"], capture_output=True, text=True, check=True).stdout.strip()
+            except subprocess.CalledProcessError as error:
+                self.show_error_warning('e', str(error), page_name='start')
+                return False
+            self.image_too_big_message.set_label(f"The image '{image_basename}' ({image_size_gb} GB) is too big for the device {device} ({device_size_gb} GB). Therefore, flashing it will likely fail. However, the program can attempt to flash the image to the device anyway. Would you like to do this?")
+            self.pager_buttons_box.set_visible(False)
+            self.stack.set_visible_child_name("image_too_big_warning")
+            self.loop.run()
+            if self.looptrue:
+                self.stack.set_visible_child_name('flash_erase')
+            else:
+                self.change_page(page_name='start')
+                return False
+        self.progress_bar_label.set_text(f"Flashing image '{image_basename}' to device {device}...")
+        thread = threading.Thread(target=start_flashing)
+        thread.start()
 
 app = app(application_id="net.CGFromJPT.Simple-USB-Flasher")
 app.run()

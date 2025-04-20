@@ -119,7 +119,7 @@ if ! ( [[ " $* " =~ ' --skip-size-check ' ]] || ( [[ " $* " =~ ' --skip-size-che
 then
     local image_size="$(/usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh "$image")"
     local device_size=$(lsblk -bno SIZE "$device" | head -n 1)
-    if (( image_size > device_size ))
+    if (( $(( image_size + $(( 512 * 1024 * 1024 )) )) > device_size ))
     then
         local image_size_gb="$(/usr/libexec/simple-usb-flasher/bytes-to-gb.sh "$image_size")"
         local device_size_gb="$(/usr/libexec/simple-usb-flasher/bytes-to-gb.sh "$device_size")"
