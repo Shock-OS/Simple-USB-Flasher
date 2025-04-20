@@ -1,6 +1,6 @@
 ## Simple USB Flasher
 
-Finally, a simple Linux app that flashes a wide variety of bootable image formats to block devices such as USB drives, external HDDs and SSDs, and SD cards. It is designed to be straightforward and "just work". It currently is a CLI only tool, though there will be a Python-powered GTK frontend coming soon.
+Finally, a simple Linux app that flashes a wide variety of bootable image formats to block devices such as USB drives, external HDDs and SSDs, and SD cards. It is designed to be straightforward and "just work". It exists as a GUI app and a CLI tool.
 
 Simply download and install the .deb package. It should work on most modern Debian/Ubuntu-based systems, and is tested and working on Linux Mint 22.1. The program currently only comes in .deb format, though it can easily be ported to other distros/Flatpak for those interested in contributing towards that.
 
