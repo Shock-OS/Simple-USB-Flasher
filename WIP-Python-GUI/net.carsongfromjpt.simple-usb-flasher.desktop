@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Simple USB Flasher
+Comment=Flash bootable images to USB/SD devices
+Exec=simple-usb-flasher
+Icon=drive-removable-media-usb
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;Utility;
+StartupNotify=false
