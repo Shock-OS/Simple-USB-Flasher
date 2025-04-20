@@ -29,7 +29,7 @@ class app(Gtk.Application):
     def on_activate(self, app):
         # Create a Builder
         builder = Gtk.Builder()
-        builder.add_from_file("main.ui")
+        builder.add_from_file("/usr/share/simple-usb-flasher/main.ui")
 
         self.page = 0
         self.pages = ['start', 'image', 'ask_decompression_method', 'device', 'erase_opts', 'are_you_sure', 'flash_erase', 'done']
