@@ -1,16 +1,16 @@
-### Simple USB Flasher
+## Simple USB Flasher
 
 Finally, a simple Linux app that flashes a wide variety of bootable image formats to block devices such as USB drives, external HDDs and SSDs, and SD cards. It is designed to be straightforward and "just work". It currently is a CLI only tool, though there will be a Python-powered GTK frontend coming soon.
 
 Simply download and install the .deb package. It should work on most modern Debian/Ubuntu-based systems, and is tested and working on Linux Mint 22.1. The program currently only comes in .deb format, though it can easily be ported to other distros/Flatpak for those interested in contributing towards that.
 
-### Disclaimer
+## Disclaimer
 
 This program has rigorous built-in safeguards to prevent flashing the computer's internal hard drive. It also displays a warning before flashing/erasing a device with an option to cancel. However, this program comes with ABSOLUTELY NO WARRANTY, and I am not responsible for unwanted data loss. The program is designed to only identify anything mounted under `/media` or `/mnt` as a removable storage device. If you have any internal/external drives with important data mounted as external storage volumes in these locations, the program may recognize them as a USB stick, so be careful not to select them. YOU HAVE BEEN WARNED!
 
-### Installation
+## Installation
 
-## Debian/Ubuntu/Mint and derivatives:
+### Debian/Ubuntu/Mint and derivatives:
 
 Simply grab the latest .deb release from the side pane on the right, and install it using:
 
@@ -20,9 +20,9 @@ For example, if you downloaded the .deb to the Downloads folder:
 
 `$ sudo apt install ~/Downloads/simple-usb-flasher-1.3-all.deb`
 
-### Usage
+## Usage
 
-## GUI (Python GTK+ App):
+### GUI (Python GTK+ App):
 
 Simply launch Simple USB Flasher from the applications menu, or run the following command in a terminal window:
 
@@ -32,11 +32,11 @@ Or, for more verbose output:
 
 `$ simple-usb-flasher --verbose`
 
-## CLI (Bash script)
+### CLI (Bash script)
 
 Simple USB Flasher also has a CLI tool: `simple-usb-flasher-cli`. In fact, the backend of the program is a collection of Bash scripts (the Python GTK+ app also uses these script under the hood). The usage for `simple-usb-flasher-cli` is as follows:
 
-<pre> ```simple-usb-flasher-cli: [ACTIONS] [PARAMETERS] [OPTIONS]
+<pre>simple-usb-flasher-cli: [ACTIONS] [PARAMETERS] [OPTIONS]
 
 ACTIONS:
     erase [DEVICE]                      Erase [DEVICE] to use it as a normal storage device again. Formats to exFAT by default, but can be used with --ask-method to select a filesystem. 
@@ -50,15 +50,15 @@ FLASH OPTIONS:
     --skip-size-check-smart   Same as '--skip-size-check', but only skips checking size if it 'may take a while'. 
 
 OTHER OPTIONS:
-    --verbose            Increase output verbosity``` </pre>
+    --verbose            Increase output verbosity</pre>
 
 To print this screen in ther terminal, you can also run:
 
 `$ simple-usb-flasher-cli --help`, or simply `$ simple-usb-flasher-cli` with no arguments.
 
-### Known Issues
+## Known Issues
 
-## Flash failed, device can no longer be mounted
+### Flash failed, device can no longer be mounted
 
 Simple USB Flasher allows the option to flash an image even when it detects that doing so probably won't work, such as when the image is too big for the target device, or the image does not appear to be a bootable one. This option is available in the hope that some unconventional OS images can still be flashed, but it has a downside. Sometimes, the flashing will fail in a way that leaves the target devices with no partitions. This causes the device to not mount when it is plugged in to the computer.
 
