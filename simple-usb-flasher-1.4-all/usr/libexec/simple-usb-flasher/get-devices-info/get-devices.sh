@@ -21,7 +21,7 @@ then
                 then
                     device="$(lsblk -pno PKNAME "$device")" || continue
                 fi
-                if [[ ! " ${devices[@]} " =~ " $device " ]]
+                if [[ -n "$device" ]] && [[ ! " ${devices[@]} " =~ " $device " ]]
                 then
                     devices+=("$device")
                 fi
