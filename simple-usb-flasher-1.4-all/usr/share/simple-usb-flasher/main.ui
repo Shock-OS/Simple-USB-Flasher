@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.96.0 -->
 <interface>
+  <!-- interface-name main.ui -->
   <requires lib="gtk" version="4.8"/>
   <object class="GtkApplicationWindow" id="main_window">
     <property name="icon-name">drive-removable-media-usb</property>
@@ -533,7 +534,7 @@
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">gtk-go-back-ltr</property>
+                        <property name="icon-name">go-previous-symbolic</property>
                       </object>
                     </child>
                     <child>
@@ -579,7 +580,7 @@
                     </child>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">gtk-go-forward-ltr</property>
+                        <property name="icon-name">go-next-symbolic</property>
                       </object>
                     </child>
                   </object>

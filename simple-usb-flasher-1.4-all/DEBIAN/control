@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Carson Grover
 Homepage: https://www.shockos.net
 Package: simple-usb-flasher
-Version: 1.3
+Version: 1.4
 Architecture: all
 Depends: 7zip, bzip2, gzip, lzma, tar, unrar, unzip, xz-utils, zstd
 Description: Simple USB Flasher
