@@ -70,3 +70,13 @@ Once installed, open GParted, navigate to the target device, navigate to `Device
 
 That's it! Exit GParted and your device should now mount properly (you may have to unplug it and plug it back in).
 
+## Screenshots
+
+![1](https://github.com/user-attachments/assets/f14c4a37-f1e4-436c-8643-cc53b06fcbf3)
+![2](https://github.com/user-attachments/assets/68574728-9f37-401c-a4ed-9a830e32c4c7)
+![3](https://github.com/user-attachments/assets/7c4eedb4-2dcc-4c6b-809f-eb6635b89ef8)
+![4](https://github.com/user-attachments/assets/630b4acf-b5b1-479f-9354-27f48c47f286)
+![5](https://github.com/user-attachments/assets/ce2768e7-f357-4bda-aea7-403b15b69c88)
+![6](https://github.com/user-attachments/assets/d66649f4-247a-4ec7-b020-5e90be7f7f8b)
+![7](https://github.com/user-attachments/assets/0439cde7-6a94-4136-a4c5-7b9c537d741d)
+![8](https://github.com/user-attachments/assets/da39d6e7-dbd9-4a9f-9bca-4912f0e72941)
