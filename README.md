@@ -58,9 +58,9 @@ To print this screen in ther terminal, you can also run:
 
 ## Known Issues
 
-### Flash failed, device can no longer be mounted
+### Flash/erase failed, device can no longer be mounted
 
-Simple USB Flasher allows the option to flash an image even when it detects that doing so probably won't work, such as when the image is too big for the target device, or the image does not appear to be a bootable one. This option is available in the hope that some unconventional OS images can still be flashed, but it has a downside. Sometimes, the flashing will fail in a way that leaves the target devices with no partitions. This causes the device to not mount when it is plugged in to the computer.
+Simple USB Flasher allows the option to flash an image even when it detects that doing so probably won't work, such as when the image is too big for the target device, or the image does not appear to be a bootable one. This option is available in the hope that some unconventional OS images can still be flashed, but it has a downside. Sometimes, the flashing will fail in a way that leaves the target devices with no partitions. This causes the device to not mount when it is plugged in to the computer. This same issue can occur if the device is removed (or some other error occurs) while it is being erased.
 
 Luckily, the fix is simple, but it requires another software: GParted. It is widely available on most Linux distros and can be installed on Debian/Ubuntu based distros with:
 
