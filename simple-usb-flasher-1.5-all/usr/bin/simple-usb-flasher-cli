@@ -173,7 +173,7 @@ then
         *) echo "SYNTAX ERROR: '${ans}' is not a valid format."; exit 1 ;;
     esac
 else
-    local fs="exfat"
+    local fs="fat32"
 fi
 if $verbose
 then
