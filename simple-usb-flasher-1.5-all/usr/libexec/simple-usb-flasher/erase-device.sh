@@ -47,6 +47,7 @@ esac
 sync
 set +e
 trap - ERR
+sudo umount "$device"*
 eject "$device" || udisksctl power-off -b "$device"
 echo "SUCCESS! Device $device was successfully formatted with the $fs filesystem. You can now safely remove the device."
 
