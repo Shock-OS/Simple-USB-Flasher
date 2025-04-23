@@ -27,7 +27,7 @@ then
 fi
 log "Using label '${label}' for device $device"
 log "Reformatting device $device with $fs filesystem..."
-
+set -e
 /usr/libexec/simple-usb-flasher/unmount-device.sh "$device" || exit "$?"
 wipefs --all --force "$device"
 dd if=/dev/zero of="$device" bs=1M count=10 status=progress
@@ -44,6 +44,7 @@ case "$fs" in
     ntfs) sudo mkfs.ntfs -f -L "$label" "$part1" ;;
 esac
 sync
+set +e
 eject "$device"
 echo "SUCCESS! Device $device was successfully formatted with the $fs filesystem. You can now safely remove the device."
 
