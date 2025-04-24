@@ -9,7 +9,7 @@ source /usr/libexec/simple-usb-flasher/funcs/check-root.sh
 
 if ! [[ "$fs" == 'exfat' || "$fs" == 'ext4' || "$fs" == 'fat32' || "$fs" == 'ntfs' ]]
 then
-    log "ERROR: '$fs' is not a valid filesystem. Filesystem must be 'exfat', 'ext4', 'fat32', or 'ntfs'."
+    logerror "ERROR: '$fs' is not a valid filesystem. Filesystem must be 'exfat', 'ext4', 'fat32', or 'ntfs'."
     exit 1
 fi
 
@@ -29,7 +29,7 @@ log "Using label '${label}' for device $device"
 log "Reformatting device $device with $fs filesystem..."
 set -e
 trap "echo 'FAILED! An error occurred while erasing device $device'" ERR
-/usr/libexec/simple-usb-flasher/unmount-device.sh "$device" || exit "$?"
+/usr/libexec/simple-usb-flasher/unmount-device.sh "$device" --verbose || exit "$?"
 wipefs --all --force "$device"
 dd if=/dev/zero of="$device" bs=1M count=10 status=progress
 parted "$device" --script mklabel msdos

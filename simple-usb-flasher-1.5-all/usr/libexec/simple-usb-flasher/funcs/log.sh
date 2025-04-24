@@ -14,3 +14,7 @@ then
 fi
 }
 
+function logerror {
+echo "$1" >&2
+}
+

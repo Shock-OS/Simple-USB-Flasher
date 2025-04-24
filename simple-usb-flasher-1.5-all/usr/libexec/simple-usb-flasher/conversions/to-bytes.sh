@@ -24,7 +24,7 @@ case "$unit" in
         size=$(( size * 1024 * 1024 * 1024))
         ;;
     *)
-        log "ERROR: '${unit}' is not a vaild unit type."
+        logerror "ERROR: '${unit}' is not a vaild unit type."
         exit 1
         ;;
 esac

@@ -9,12 +9,12 @@ source /usr/libexec/simple-usb-flasher/funcs/check-root.sh
 
 function handle_error {
 local returncode="$?"
-log "ERROR: Failed to flash image '${image}' to device ${device}. dd exited with return code ${returncode}."
+logerror "ERROR: Failed to flash image '${image}' to device ${device}. dd exited with return code ${returncode}."
 exit $returncode
 }
 
 function unknown_method {
-log "ERROR: Unknown method '${method}'"
+logerror "ERROR: Unknown method '${method}'"
 exit 1
 }
 
@@ -22,11 +22,11 @@ exit 1
 
 if [[ ! -f "$image" ]]
 then
-    log "ERROR: File '${image}' does not exist."
+    logerror "ERROR: File '${image}' does not exist."
     exit 1
 fi
 
-/usr/libexec/simple-usb-flasher/unmount-device.sh "$device" || exit "$?"
+/usr/libexec/simple-usb-flasher/unmount-device.sh "$device" --verbose || exit "$?"
 
 file_type="$(/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh "$image")"
 log 'Writing image...'
@@ -146,5 +146,5 @@ esac || handle_error
 sync
 sudo umount "$device"*
 eject "$device" || udisksctl power-off -b "$device"
-log "SUCCESS! Image '$(basename "$image")' has successfully been flashed to device ${device}. You can now safely remove the device."
+echo "SUCCESS! Image '$(basename "$image")' has successfully been flashed to device ${device}. You can now safely remove the device."
 
