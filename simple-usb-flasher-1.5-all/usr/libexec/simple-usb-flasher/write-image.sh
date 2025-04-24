@@ -144,6 +144,7 @@ case "$file_type" in
         ;;
 esac || handle_error
 sync
-eject "$device"
+sudo umount "$device"*
+eject "$device" || udisksctl power-off -b "$device"
 log "SUCCESS! Image '$(basename "$image")' has successfully been flashed to device ${device}. You can now safely remove the device."
 

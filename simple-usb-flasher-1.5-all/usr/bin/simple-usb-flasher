@@ -415,6 +415,7 @@ class app(Gtk.Application):
             device = self.get_device()
             message = f"An error occurred while flashing the image to device {device}"
         notification = Notify.Notification.new('Simple USB Flasher', message, 'drive-removable-media-usb')
+        notification.set_hint("resident", GLib.Variant('b', True))
         notification.show()
 
     def main_window_close_request(self, window):
