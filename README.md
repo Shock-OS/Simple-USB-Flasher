@@ -56,6 +56,26 @@ To print this screen in ther terminal, you can also run:
 
 `$ simple-usb-flasher-cli --help`, or simply `$ simple-usb-flasher-cli` with no arguments.
 
+## Supported Image Types
+ - .7z
+ - .bz2
+ - .gz
+ - .img
+ - .iso
+ - .lzma
+ - .rar
+ - .tar
+ - .tar.bz2
+ - .tar.gz
+ - .tar.lzma
+ - .tar.xz
+ - .tar.zst
+ - .xz
+ - .zip
+ - .zst
+
+<b>NOTE:</b> If you attempt to flash an image of a file type that is not in the list above, the program will give you a warning letting you know that the file type is not supported. However, it will still allow you to flash the image if you want, but doing so may result in a corrupted drive (which can be easily fixed using GParted, see Known Issues below).
+
 ## Known Issues
 
 ### Flash/erase failed, device can no longer be mounted
