@@ -43,7 +43,7 @@ Or, for more verbose output:
 
 ### CLI (Bash script)
 
-Simple USB Flasher also has a CLI tool: `simple-usb-flasher-cli`. In fact, the backend of the program is a collection of Bash scripts (the Python GTK+ app also uses these script under the hood). The usage for `simple-usb-flasher-cli` is as follows:
+Simple USB Flasher also has a CLI tool: `simple-usb-flasher-cli`. In fact, the backend of the program is a collection of Bash scripts (the Python GTK+ app also uses these scripts under the hood). The usage for `simple-usb-flasher-cli` is as follows:
 
 <pre>simple-usb-flasher-cli: [ACTIONS] [PARAMETERS] [OPTIONS]
 
@@ -61,7 +61,7 @@ FLASH OPTIONS:
 OTHER OPTIONS:
     --verbose            Increase output verbosity</pre>
 
-To print this screen in ther terminal, you can also run:
+To print this screen in the terminal, you can run:
 
 `$ simple-usb-flasher-cli --help`, or simply `$ simple-usb-flasher-cli` with no arguments.
 

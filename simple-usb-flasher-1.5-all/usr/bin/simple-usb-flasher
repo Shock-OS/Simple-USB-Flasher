@@ -109,8 +109,8 @@ class app(Gtk.Application):
             if button == self.next_button and self.page < 7:
                 if get_current_page_name() == 'image':
                     if not self.get_image():
-                        self.show_error_warning('e', 'You have not selected an image to flash. Please select a bootable image to flash.')
-                        set_page_from_name('image')
+                        self.show_error_warning('e', 'You have not selected an image to flash. Please select a bootable image to flash.', page_name='image')
+                        #set_page_from_name('image')
                     else:
                         if not self.get_image_type():
                             image = self.get_image()
@@ -125,8 +125,8 @@ class app(Gtk.Application):
                             action='flash'
                         else:
                             action='erase'
-                        self.show_error_warning('e', f'You have not selected a device to {action}. Please insert and select a USB stick, USB HDD/SSD, or SD card to {action}.')
-                        set_page_from_name('device')
+                        self.show_error_warning('e', f'You have not selected a device to {action}. Please insert and select a USB stick, USB HDD/SSD, or SD card to {action}.', page_name='device')
+                        #set_page_from_name('device')
                     else:
                         if self.flash_toggle_button.get_active():
                             set_page_from_name('are_you_sure')
@@ -353,14 +353,16 @@ class app(Gtk.Application):
             self.progress_bar_label.set_text(f"Flashing image '{image_basename}' to device {device}... ({percentage}%)")
         def start_flashing():
             self.prevent_close = True
-            device_in_use = False
+            reason_for_failure = None
             process = subprocess.Popen(['pkexec', '/usr/libexec/simple-usb-flasher/write-image.sh', f"{image}", f"{device}", f"{method}"], stderr=subprocess.PIPE, text=True)
             for line in process.stderr:
                 line = line.strip()
                 log(line)
                 try:
                     if ': target is busy' in line:
-                        device_in_use = True
+                        reason_for_failure = 'device_in_use'
+                    elif f"dd: error writing '{device}': No space left on device" in line:
+                        reason_for_failure = 'not_enough_space'
                     bytes_written = line.split(" ", 1)[0]
                     fraction = int(bytes_written) / self.image_size
                     fraction = round(fraction, 2)
@@ -378,10 +380,13 @@ class app(Gtk.Application):
                 self.change_page(page_name='are_you_sure')
                 return False
             else:
-                if device_in_use:
+                if reason_for_failure == 'device_in_use':
                     message=f"Cannot flash to device {device} because it is currently in use."
                     self.show_notification(message=message)
                     self.show_error_warning('e', message, page_name='start')
+                elif reason_for_failure == 'not_enough_space':
+                    self.show_notification(message=f"Flash failed, not enough space on device {device}")
+                    self.show_error_warning('e', f"Could not flash image '{image}' to device {device} because there was not enough space on the device.", page_name='start')
                 else:
                     self.show_notification(flash_error=True)
                     self.show_error_warning('e', f"/usr/libexec/simple-usb-flasher/write-image.sh exited with non-zero status of {process.returncode}.", page_name='start')
