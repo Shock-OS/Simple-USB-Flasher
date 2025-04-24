@@ -13,8 +13,6 @@ import re
 import time
 import os
 
-Notify.init("Simple USB Flasher")
-
 parser = argparse.ArgumentParser(description="Flash bootable images to block devices such as USB sticks, USB HDDs/SSDs, and SD cards.")
 
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
@@ -89,6 +87,10 @@ class app(Gtk.Application):
 
         self.change_page(page_name='start')
 
+        Notify.init('Simple USB Flasher')
+
+        self.deskenv = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+
         # Obtain and show the main window
         self.main_window = builder.get_object("main_window")
         self.main_window.connect("close-request", self.main_window_close_request)
@@ -110,7 +112,6 @@ class app(Gtk.Application):
                 if get_current_page_name() == 'image':
                     if not self.get_image():
                         self.show_error_warning('e', 'You have not selected an image to flash. Please select a bootable image to flash.', page_name='image')
-                        #set_page_from_name('image')
                     else:
                         if not self.get_image_type():
                             image = self.get_image()
@@ -126,7 +127,6 @@ class app(Gtk.Application):
                         else:
                             action='erase'
                         self.show_error_warning('e', f'You have not selected a device to {action}. Please insert and select a USB stick, USB HDD/SSD, or SD card to {action}.', page_name='device')
-                        #set_page_from_name('device')
                     else:
                         if self.flash_toggle_button.get_active():
                             set_page_from_name('are_you_sure')
@@ -294,15 +294,15 @@ class app(Gtk.Application):
                 else:
                     if ': target is busy' in error.stderr:
                         message=f"Cannot erase device {device} because it is currently in use."
-                        self.show_notification(message=message)
+                        self.show_notification(title='Failed to Erase Device', message=message)
                         self.show_error_warning('e', message, page_name='start')
                     else:
-                        self.show_notification(message=f"An error occurred while erasing device {device}")
+                        self.show_notification(title='Failed to Erase Device', message=f"An error occurred while erasing device {device}")
                         self.show_error_warning('e', str(error), page_name='start')
                 return False
             self.done_label.set_label(f"Success! Device {device} has been reformatted! You can now safely remove the device.")
             self.change_page(page_name='done')
-            self.show_notification(message=f"Done erasing device {device}")
+            self.show_notification(title='Done Erasing Device', message=f"Device {device} has been successfully erased.")
         self.flash_erase_title.set_label('<span size="xx-large" weight="bold">Erasing...</span>')
         self.progress_bar_label.set_text(f"Erasing device {device}...")
         self.progress_bar_spinner.set_spinning(True)
@@ -375,17 +375,17 @@ class app(Gtk.Application):
             if process.returncode == 0:
                 self.done_label.set_label(f"Success! Image '{image_basename}' has been flashed to device {device}! You can now safely remove the device.")
                 self.change_page(page_name='done')
-                self.show_notification(message=f"Done flashing image to device {device}")
+                self.show_notification(title='Done Flashing', message=f"The image has been successfully flashed to device {device}")
             elif process.returncode == 126: # if pkexec failed
                 self.change_page(page_name='are_you_sure')
                 return False
             else:
                 if reason_for_failure == 'device_in_use':
                     message=f"Cannot flash to device {device} because it is currently in use."
-                    self.show_notification(message=message)
+                    self.show_notification(title='Failed to Flash Device', message=message)
                     self.show_error_warning('e', message, page_name='start')
                 elif reason_for_failure == 'not_enough_space':
-                    self.show_notification(message=f"Flash failed, not enough space on device {device}")
+                    self.show_notification(title='Failed to Flash Device', message=f"Flash failed, not enough space on device {device}")
                     self.show_error_warning('e', f"Could not flash image '{image}' to device {device} because there was not enough space on the device.", page_name='start')
                 else:
                     self.show_notification(flash_error=True)
@@ -426,23 +426,30 @@ class app(Gtk.Application):
         thread = threading.Thread(target=start_flashing)
         thread.start()
 
-    def show_notification(self, message="", flash_error=False):
+    def show_notification(self, title="", message="", flash_error=False):
         if not message and not flash_error:
             raise ValueError("You must use either 'message=' or 'flash_error=True'")
         if flash_error:
             device = self.get_device()
+            title = 'Failed to Flash Device'
             message = f"An error occurred while flashing the image to device {device}"
-        try:
-            notification = Notify.Notification.new('Simple USB Flasher', message, 'drive-removable-media-usb')
-            notification.set_hint("resident", GLib.Variant('b', True))
-            notification.show()
-        except:
-            pass
+        if 'gnome' in self.deskenv:
+            notification = Gio.Notification.new(title)
+            notification.set_body(message)
+            notification.set_icon(Gio.ThemedIcon.new('drive-removable-media-usb'))
+            self.send_notification(None, notification)
+        else:
+            try:
+                notification = Notify.Notification.new('Simple USB Flasher', message, 'drive-removable-media-usb')
+                notification.set_hint("resident", GLib.Variant('b', True))
+                notification.show()
+            except:
+                pass
 
     def main_window_close_request(self, window):
         if self.stack.get_visible_child_name() == 'flash_erase' and self.prevent_close:
             return True
 
-app = app(application_id="net.CGFromJPT.Simple-USB-Flasher")
+app = app(application_id="net.CarsonGFromJPT.Simple-USB-Flasher")
 app.run()
 
