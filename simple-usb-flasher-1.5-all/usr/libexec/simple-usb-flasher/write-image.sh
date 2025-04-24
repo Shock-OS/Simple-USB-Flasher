@@ -146,5 +146,5 @@ esac || handle_error
 sync
 sudo umount "$device"*
 eject "$device" || udisksctl power-off -b "$device"
-echo "SUCCESS! Image '$(basename "$image")' has successfully been flashed to device ${device}. You can now safely remove the device."
+log "SUCCESS! Image '$(basename "$image")' has successfully been flashed to device ${device}. You can now safely remove the device."
 
