@@ -4,6 +4,15 @@ Finally, a simple Linux app that flashes a wide variety of bootable image format
 
 Simply download and install the .deb package. It should work on most modern Debian/Ubuntu-based systems, and is tested and working on Linux Mint 22.1. The program currently only comes in .deb format, though it can easily be ported to other distros/Flatpak for those interested in contributing towards that.
 
+## Terminology
+This README file and the program itself will use the words "image" and "device" often. Here's what they mean:
+
+ - "image" = bootable operating system disk image file (e.g. the .iso file)
+    - "image" does NOT mean "picture"
+
+ - "device" = USB stick, external USB HDD, external USB SSD, or SD card that can be flashed
+    - "device" does NOT refer to the/a computer, phone, tablet, etc.
+
 ## Disclaimer
 
 This program has rigorous built-in safeguards to prevent flashing the computer's internal hard drive. It also displays a warning before flashing/erasing a device with an option to cancel. However, this program comes with <b>ABSOLUTELY NO WARRANTY</b>, and I am not responsible for unwanted data loss. The program is designed to only identify anything mounted under `/media` or `/mnt` as a removable storage device. If you have any internal/external drives with important data mounted in these locations, the program may recognize them as a USB stick, so be careful not to select them. <b>YOU HAVE BEEN WARNED!</b>
@@ -74,7 +83,7 @@ To print this screen in ther terminal, you can also run:
  - .zip
  - .zst
 
-<b>NOTE:</b> If you attempt to flash an image of a file type that is not in the list above, the program will give you a warning letting you know that the file type is not supported. However, it will still allow you to flash the image if you want, but doing so may result in a corrupted drive (which can be easily fixed using GParted, see Known Issues below).
+<b>NOTE:</b> If you attempt to flash an image of a file type that is not in the list above, the program will give you a warning letting you know that the file type is not supported. However, it will still allow you to flash the image if you want, but doing so corrupt the device (which can be easily fixed using GParted, see Known Issues below).
 
 ## Known Issues
 
