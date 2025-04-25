@@ -9,4 +9,4 @@ Type=Application
 Categories=GNOME;GTK;Utility;
 StartupWMClass=net.CarsonGFromJPT.Simple-USB-Flasher
 StartupNotify=false
-DBusActivatable=true
+X-GNOME-Application-ID=net.CarsonGFromJPT.Simple-USB-Flasher

@@ -22,7 +22,7 @@ def log(message):
     if args.verbose:
         print(message)
 
-class app(Gtk.Application):
+class App(Gtk.Application):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
@@ -450,6 +450,6 @@ class app(Gtk.Application):
         if self.stack.get_visible_child_name() == 'flash_erase' and self.prevent_close:
             return True
 
-app = app(application_id="net.CarsonGFromJPT.Simple-USB-Flasher")
+app = App(application_id="net.CarsonGFromJPT.Simple-USB-Flasher")
 app.run()
 
