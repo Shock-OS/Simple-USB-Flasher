@@ -185,7 +185,7 @@ echo ''
 echo '1. Must be 1-10 characters long'
 echo '2. Only letters, numbers, hypens, and underscores'
 echo ''
-echo "If you leave this empty, the label will be 'USB_STICK'."
+echo "If you leave this empty, the the default label (e.g. 'USB Stick' or 'SD Card') will be used."
 echo ''
 read -p "Please enter a name/label for device ${device}: " label
 local 

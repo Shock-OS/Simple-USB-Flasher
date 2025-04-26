@@ -15,15 +15,89 @@ fi
 
 /usr/libexec/simple-usb-flasher/verify-mountpoints.sh "$device" || exit "$?"
 
-label="${label::10}"
-label="${label//[^a-zA-Z0-9_-]/}"
-if [[ "$fs" == 'fat32' ]]
+function parse_label {
+local action="$1"
+if ! [[ "$action" == 'keep' || "$action" == 'remove' ]]
 then
+    logerror "SYNTAX ERROR: parse_chars argument 1 must be either 'keep' or 'remove'."
+    exit 1
+fi
+local match_chars="$2"
+local charlimit="$3"
+local old_label="$4"
+local new_label=''
+while IFS= read -r -n1 char
+do
+    if [[ "$action" == 'keep' ]]
+    then
+        if [[ "$char" =~ [[:alnum:]] ]] || [[ " ${match_chars} " == *" ${char} "* ]]
+        then
+            new_label+="${char}"
+        fi
+    else # remove
+        if [[ ! " ${match_chars} " == *" ${char} "* ]]
+        then
+            new_label+="${char}"
+        fi
+    fi
+    if ((${#new_label}==${charlimit}))
+    then
+        break
+    fi
+done <<< "$old_label"
+echo "$new_label"
+}
+
+if [[ "$fs" == 'exfat' ]]
+then
+    label="$(parse_label remove '" * / : < > ? \ |' 15 "$label")"
+elif [[ "$fs" == 'ext4' ]]
+then
+    label="$(echo "$label" | tr -cd '\0-\177')" # convert to ASCII
+    label="${label// /_}" # replace spaces w underscores
+    label="$(parse_label keep '- _ . ~' 16 "$label")"
+elif [[ "$fs" == 'fat32' ]]
+then
+    label="$(echo "$label" | tr -cd '\0-\177')" # convert to ASCII
+    label="${label// /_}" # replace spaces w underscores
+    label="$(parse_label keep '$ % '\'' - _ @ ~ ! ( ) { } ^ # &' 11 "$label")"
     label="${label^^}"
+elif [[ "$fs" == 'ntfs' ]]
+then
+    label="$(parse_label remove '? " / \ | * < >' 32 "$label")"
 fi
 if [[ -z "$label" ]]
 then
-    label='USB_STICK'
+    if [[ "$fs" == 'ext4' ]]
+    then
+        if [[ "$device" == '/dev/mmcblk'* ]]
+        then
+            label='SD_Card'
+        else
+            label='USB_Stick'
+        fi
+    elif [[ "$fs" == 'fat32' ]]
+    then
+        if [[ -z "$label" ]]
+        then
+            if [[ "$device" == '/dev/mmcblk'* ]]
+            then
+                label='SD_CARD'
+            else
+                label='USB_STICK'
+            fi
+        fi
+    else # exfat and ntfs
+        if [[ -z "$label" ]]
+        then
+            if [[ "$device" == '/dev/mmcblk'* ]]
+            then
+                label='SD Card'
+            else
+                label='USB Stick'
+            fi
+        fi
+    fi
 fi
 log "Using label '${label}' for device $device"
 log "Reformatting device $device with $fs filesystem..."

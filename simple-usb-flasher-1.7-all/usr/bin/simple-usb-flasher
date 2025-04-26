@@ -48,7 +48,6 @@ class App(Gtk.Application):
         self.erase_toggle_button.set_group(self.flash_toggle_button)
         self.erase_device_label = builder.get_object("erase_device_label")
         self.erase_label_entry = builder.get_object("erase_label_entry")
-        self.erase_label_entry.set_text('USB_STICK')
         self.erase_fs_cb = builder.get_object("erase_fs_cb")
         self.erase_fs_cb.set_active_id('fat32')
         self.flash_toggle_button.set_active(True)

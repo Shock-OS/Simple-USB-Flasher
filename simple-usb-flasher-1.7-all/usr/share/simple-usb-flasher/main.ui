@@ -213,6 +213,11 @@
                       </object>
                     </child>
                     <child>
+                      <object class="GtkLabel">
+                        <property name="label">If you leave this empty, the the default label (e.g. 'USB Stick' or 'SD Card') will be used.</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkBox">
                         <property name="halign">center</property>
                         <property name="spacing">5</property>
