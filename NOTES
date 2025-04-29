@@ -1,0 +1,3 @@
+ - In the GUI app, on the Flashing page, make the icon reflect whether the device is a USB Drive or SD card (using 'mmcblk')
+ - Test new labels and stuff (exfat 'Momma's Boy' label didn't work)
+ - Test on Ubuntu GNOME again (with new instances thing)

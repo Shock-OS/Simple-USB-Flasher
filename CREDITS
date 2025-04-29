@@ -16,3 +16,7 @@ Thanks to all those who involved in or behind these projects (directly or indire
     - unzip
     - xz-utils
     - zstd
+
+The fallback icons (/usr/share/simple-usb-flasher/fallback-icons/) are from the Adwaita project (GNOME), licensed under Creative Commons Attribution-ShareAlike 3.0 (CC BY-SA 3.0).
+https://gitlab.gnome.org/GNOME/adwaita-icon-theme
+

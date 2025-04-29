@@ -39,7 +39,7 @@
                           <object class="GtkBox">
                             <property name="spacing">5</property>
                             <child>
-                              <object class="GtkImage">
+                              <object class="GtkImage" id="flash_toggle_button_icon">
                                 <property name="icon-name">drive-removable-media-usb-symbolic</property>
                               </object>
                             </child>
@@ -346,7 +346,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImage">
+                      <object class="GtkImage" id="flash_erase_icon">
                         <property name="icon-name">drive-removable-media-usb</property>
                         <property name="pixel-size">128</property>
                       </object>

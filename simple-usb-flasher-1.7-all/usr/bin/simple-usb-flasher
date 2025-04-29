@@ -3,15 +3,18 @@
 import sys
 import gi
 gi.require_version('Gtk', '4.0')
-gi.require_version('Notify', '0.7')
-from gi.repository import Gtk, Gio, GLib, Notify
+gi.require_version('Gdk', '4.0')
+from gi.repository import Gtk, Gdk, Gio, GLib
 import argparse
 import subprocess
 import threading
 from pathlib import Path
-import re
-import time
 import os
+deskenv = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+if 'gnome' in deskenv:
+    gi.require_version('Notify', '0.7')
+    from gi.repository import Notify
+    Notify.init('Simple USB Flasher')
 
 parser = argparse.ArgumentParser(description="Flash bootable images to block devices such as USB sticks, USB HDDs/SSDs, and SD cards.")
 
@@ -22,7 +25,7 @@ def log(message):
     if args.verbose:
         print(message)
 
-class App(Gtk.Application):
+class app(Gtk.Application):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
@@ -32,6 +35,7 @@ class App(Gtk.Application):
         builder = Gtk.Builder()
         builder.add_from_file("/usr/share/simple-usb-flasher/main.ui")
 
+        self.prevent_close = False
         self.page = 0
         self.pages = ['start', 'image', 'ask_decompression_method', 'device', 'erase_opts', 'are_you_sure', 'flash_erase', 'done']
 
@@ -44,6 +48,8 @@ class App(Gtk.Application):
         self.dismiss_button = builder.get_object("dismiss_button")
         self.dismiss_button.connect("clicked", self.dismiss_error_warning)
         self.flash_toggle_button = builder.get_object("flash_toggle_button")
+        self.flash_toggle_button_icon = builder.get_object("flash_toggle_button_icon")
+        self.set_icon(self.flash_toggle_button_icon, ['drive-removable-media-usb-symbolic', 'drive-harddisk-usb-symbolic'], '/usr/share/icons/Adwaita/scalable/devices/media-removable-symbolic.svg')
         self.erase_toggle_button = builder.get_object("erase_toggle_button")
         self.erase_toggle_button.set_group(self.flash_toggle_button)
         self.erase_device_label = builder.get_object("erase_device_label")
@@ -64,6 +70,7 @@ class App(Gtk.Application):
         self.are_you_sure_no_button = builder.get_object("are_you_sure_no_button")
         self.are_you_sure_no_button.connect("clicked", self.are_you_sure, False)
         self.flash_erase_title = builder.get_object("flash_erase_title")
+        self.flash_erase_icon = builder.get_object("flash_erase_icon")
         self.progress_bar_label = builder.get_object("progress_bar_label")
         self.progress_bar_spinner = builder.get_object("progress_bar_spinner")
         self.progress_bar = builder.get_object("progress_bar")
@@ -81,14 +88,8 @@ class App(Gtk.Application):
 
         self.settings = Gio.Settings.new("net.carsongfromjpt.simple-usb-flasher.gui-settings")
         self.settings.bind("ask-for-decompression-method", self.ask_for_method_checkbox, "active", Gio.SettingsBindFlags.DEFAULT)
-
         self.loop = GLib.MainLoop()
-
         self.change_page(page_name='start')
-
-        Notify.init('Simple USB Flasher')
-
-        self.deskenv = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
 
         # Obtain and show the main window
         self.main_window = builder.get_object("main_window")
@@ -162,12 +163,12 @@ class App(Gtk.Application):
             self.next_button.set_visible(True)
         if next_page_name == 'image':
             self.image_size = None
-        if next_page_name == 'device':
+        elif next_page_name == 'device':
             self.refresh_devices(None)
-        if next_page_name == 'erase_opts':
+        elif next_page_name == 'erase_opts':
             device = self.get_device()
             self.erase_device_label.set_label(f"You can assign a new label to device {device}.")
-        if next_page_name == 'are_you_sure':
+        elif next_page_name == 'are_you_sure':
             device = self.get_device()
             device_name = self.get_device(mode='name')
             if self.flash_toggle_button.get_active():
@@ -175,7 +176,13 @@ class App(Gtk.Application):
                 self.are_you_sure_message.set_label(f"Are you sure you would like to flash image '{image}' to device '{device_name}'? <b>WARNING: THIS WILL ERASE ALL DATA ON DEVICE {device}! YOU HAVE BEEN WARNED!</b>")
             else:
                 self.are_you_sure_message.set_label(f"Are you sure you would like to erase device '{device_name}'? <b>WARNING: THIS WILL ERASE ALL DATA ON DEVICE {device}! YOU HAVE BEEN WARNED!</b>")
-        if next_page_name == 'done':
+        elif next_page_name == 'flash_erase':
+            device = self.get_device()
+            if 'mmcblk' in device:
+                self.set_icon(self.flash_erase_icon, ['media-memory-sd', 'media-flash', 'media-flash-symbolic'], '/usr/share/simple-usb-flasher/fallback-icons/media-flash.svg')
+            else:
+                self.set_icon(self.flash_erase_icon, ['drive-removable-media-usb', 'drive-removable-media-usb-pendrive', 'drive-removable-media-usb-symbolic', 'drive-harddisk-usb-symbolic'], '/usr/share/simple-usb-flasher/fallback-icons/media-removable.svg')
+        elif next_page_name == 'done':
             self.pager_buttons_box.set_visible(False)
         self.stack.set_visible_child_name(next_page_name)
 
@@ -284,7 +291,7 @@ class App(Gtk.Application):
         def start_erasing():
             try:
                 self.prevent_close = True
-                process = subprocess.run(['pkexec', '/usr/libexec/simple-usb-flasher/erase-device.sh', f"{device}", f"{fs}", f"'{label}'"], check=True, capture_output=True, text=True)
+                process = subprocess.run(['pkexec', '/usr/libexec/simple-usb-flasher/erase-device.sh', f"{device}", f"{fs}", f"{label}"], check=True, capture_output=True, text=True)
                 self.prevent_close = False
             except subprocess.CalledProcessError as error:
                 self.prevent_close = False
@@ -432,7 +439,7 @@ class App(Gtk.Application):
             device = self.get_device()
             title = 'Failed to Flash Device'
             message = f"An error occurred while flashing the image to device {device}"
-        if 'gnome' in self.deskenv:
+        if 'gnome' in deskenv:
             notification = Gio.Notification.new(title)
             notification.set_body(message)
             notification.set_icon(Gio.ThemedIcon.new('drive-removable-media-usb'))
@@ -445,10 +452,20 @@ class App(Gtk.Application):
             except:
                 pass
 
+    def set_icon(self, widget, icon_names, final_fallback):
+        theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+        for name in icon_names:
+            if theme.has_icon(name):
+                widget.set_from_icon_name(name)
+        log(f"No icons found, using fallback icon {final_fallback}")
+        widget.set_from_file(final_fallback)
+
     def main_window_close_request(self, window):
         if self.stack.get_visible_child_name() == 'flash_erase' and self.prevent_close:
             return True
 
-app = App(application_id="net.CarsonGFromJPT.Simple-USB-Flasher")
+pid = os.getpid()
+log(f"Instance: {pid}")
+app = app(application_id=f"net.CarsonGFromJPT.Simple-USB-Flasher.instance_{pid}")
 app.run()
 
