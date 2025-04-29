@@ -456,7 +456,8 @@ class app(Gtk.Application):
         theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
         for name in icon_names:
             if theme.has_icon(name):
-                widget.set_from_icon_name(name)
+                widget.set_from_icon_name('drive-removable-media-usb-symbolic')
+                return True
         log(f"No icons found, using fallback icon {final_fallback}")
         widget.set_from_file(final_fallback)
 
@@ -465,7 +466,7 @@ class app(Gtk.Application):
             return True
 
 pid = os.getpid()
-log(f"Instance: {pid}")
+log(f"Instance PID: {pid}")
 app = app(application_id=f"net.CarsonGFromJPT.Simple-USB-Flasher.instance_{pid}")
 app.run()
 
