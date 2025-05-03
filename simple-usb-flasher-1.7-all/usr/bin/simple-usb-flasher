@@ -458,7 +458,7 @@ class app(Gtk.Application):
             if theme.has_icon(name):
                 widget.set_from_icon_name(name)
                 return True
-        log(f"No icons found, using fallback icon {final_fallback}")
+        log(f"No '{icon_names[0]}' or equivalent/similar icon found, using fallback icon '{final_fallback}'.")
         widget.set_from_file(final_fallback)
 
     def main_window_close_request(self, window):
