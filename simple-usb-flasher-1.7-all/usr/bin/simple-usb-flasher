@@ -465,8 +465,6 @@ class app(Gtk.Application):
         if self.stack.get_visible_child_name() == 'flash_erase' and self.prevent_close:
             return True
 
-instance_pid = os.getpid()
-log(f"Instance PID: {instance_pid}")
-app = app(application_id=f"net.CarsonGFromJPT.Simple-USB-Flasher.instance_{instance_pid}")
+app = app(application_id=f"net.CarsonGFromJPT.Simple-USB-Flasher", flags=Gio.ApplicationFlags.NON_UNIQUE)
 app.run()
 
