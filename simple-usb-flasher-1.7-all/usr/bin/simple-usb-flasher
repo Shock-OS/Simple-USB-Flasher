@@ -11,7 +11,7 @@ import threading
 from pathlib import Path
 import os
 deskenv = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
-if 'gnome' in deskenv:
+if not 'gnome' in deskenv:
     gi.require_version('Notify', '0.7')
     from gi.repository import Notify
     Notify.init('Simple USB Flasher')
