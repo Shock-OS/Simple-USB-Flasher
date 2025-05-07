@@ -25,32 +25,32 @@ then
     echo 'Getting uncompressed size of image, this may take a while...' > /dev/tty
 fi
 case "$type" in
-    .7z)
+    '.7z')
         size="$(7z l "$image" | tail -n 1 | awk '{print $3}')"
         ;;
-    .bz2)
+    '.bz2')
         size="$(bzcat "$image" | wc -c)"
         ;;
-    .gz)
+    '.gz')
         size="$(zcat -l "$image" | awk 'NR==2 {print $2}')"
         ;;
-    .lzma)
+    '.lzma')
         size="$(lzcat "$image" | wc -c)"
         ;;
-    .rar)
+    '.rar')
         size="$(unrar l "$image" | tail -n 2 | head -n 1 | awk '{print $1}')"
         ;;
     'tar'*)
         size="$(tar -tvf "$image" | awk '{s += $3} END {print s}')"
         ;;
-    .xz)
+    '.xz')
         size="$(xz -l "$image" | awk 'NR==2 {print $5,$6}')"
         size="$(/usr/libexec/simple-usb-flasher/conversions/to-bytes.sh "$size")"
         ;;
-    .zip)
+    '.zip')
         size="$(unzip -l "$image" | tail -n 1 | awk '{print $1}')"
         ;;
-    .zst)
+    '.zst')
         size="$(zstd -l "$image" | awk 'NR==2 {print $5,$6}')"
         size="$(/usr/libexec/simple-usb-flasher/conversions/to-bytes.sh "$size")"
         ;;

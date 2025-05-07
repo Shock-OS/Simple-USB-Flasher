@@ -108,15 +108,15 @@ wipefs --all --force "$device"
 dd if=/dev/zero of="$device" bs=1M count=10 status=progress
 parted "$device" --script mklabel msdos
 case "$fs" in
-    fat32|exfat) sudo parted "$device" --script mkpart primary fat32 1MiB 100% ;;
+    'fat32'|'exfat') sudo parted "$device" --script mkpart primary fat32 1MiB 100% ;;
     *) sudo parted "$device" --script mkpart primary "$fs" 1MiB 100% ;;
 esac
 part1="$(lsblk -pnro NAME "$device" | tail -n 1)"
 case "$fs" in
-    exfat) sudo mkfs.exfat -n "$label" "$part1" ;;
-    ext4) sudo mkfs.ext4 -F -L "$label" "$part1" ;;
-    fat32) sudo mkfs.vfat -I -F 32 -n "$label" "$part1" ;;
-    ntfs) sudo mkfs.ntfs -f -L "$label" "$part1" ;;
+    'exfat') sudo mkfs.exfat -n "$label" "$part1" ;;
+    'ext4') sudo mkfs.ext4 -F -L "$label" "$part1" ;;
+    'fat32') sudo mkfs.vfat -I -F 32 -n "$label" "$part1" ;;
+    'ntfs') sudo mkfs.ntfs -f -L "$label" "$part1" ;;
 esac
 sync
 set +e

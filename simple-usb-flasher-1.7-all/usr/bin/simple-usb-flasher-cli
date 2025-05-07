@@ -142,7 +142,7 @@ echo "WARNING: Flashing an image will ERASE ALL DATA on device ${device}. Are yo
 echo ''
 read -p "Flash image to device ${device}? [y/N]: " ans
 case "$ans" in
-    y|yes)
+    'y'|'yes')
         sudo /usr/libexec/simple-usb-flasher/write-image.sh "$image" "$device" "$method" --verbose
         exit
         ;;
@@ -166,10 +166,10 @@ then
     echo ''
     read -p 'Which format to use? [1-4]: ' ans
     case "$ans" in
-        1) local fs='exfat' ;;
-        2) local fs='fat32' ;;
-        3) local fs='ntfs' ;;
-        4) local fs='ext4' ;;
+        '1') local fs='exfat' ;;
+        '2') local fs='fat32' ;;
+        '3') local fs='ntfs' ;;
+        '4') local fs='ext4' ;;
         *) echo "SYNTAX ERROR: '${ans}' is not a valid format."; exit 1 ;;
     esac
 else
@@ -194,7 +194,7 @@ echo ''
 read -p "Erase device ${device}? [y/N]: " ans
 ans="${ans,,}"
 case "$ans" in
-    y|yes)
+    'y'|'yes')
         if [[ -z "$label" ]]
         then
             label='USB_STICK'
@@ -208,10 +208,10 @@ esac
 }
 
 case "$1" in
-    erase) erase "$2" ;;
-    flash) flash "$2" "$3" "$4" ;;
-    list-devices) list-devices ;;
-    list-supported-file-types) list-supported-file-types ;;
+    'erase') erase "$2" ;;
+    'flash') flash "$2" "$3" "$4" ;;
+    'list-devices') list-devices ;;
+    'list-supported-file-types') list-supported-file-types ;;
     *) show-help-screen ;;
 esac
 

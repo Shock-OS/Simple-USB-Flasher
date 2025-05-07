@@ -31,7 +31,7 @@ fi
 file_type="$(/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh "$image")"
 log 'Writing image...'
 case "$file_type" in
-    .7z)
+    '.7z')
         case "$method" in
             '7z')
                 7z x -so "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
@@ -44,7 +44,7 @@ case "$file_type" in
                 ;;
         esac
         ;;
-    .bz2)
+    '.bz2')
         case "$method" in
             'bzcat')
                 bzcat "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
@@ -60,7 +60,7 @@ case "$file_type" in
                 ;;
         esac
         ;;
-    .gz)
+    '.gz')
         case "$method" in
             'zcat')
                 zcat "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
@@ -76,7 +76,7 @@ case "$file_type" in
                 ;;
         esac
         ;;
-    .lzma)
+    '.lzma')
         case "$method" in
             'lzcat')
                 lzcat "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
@@ -98,18 +98,18 @@ case "$file_type" in
                 ;;
         esac
         ;;
-    .rar)
+    '.rar')
         unrar p "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
         ;;
     '.tar'*)
         tar -O -xf "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
         ;;
-    .xz)
+    '.xz')
         case "$method" in
-            xzcat)
+            'xzcat')
                 xzcat "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
                 ;;
-            xz)
+            'xz')
                 xz -dc "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
                 ;;
             *)
@@ -117,10 +117,10 @@ case "$file_type" in
                 ;;
         esac
         ;;
-    .zip)
+    '.zip')
         unzip -p "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
         ;;
-    .zst)
+    '.zst')
         case "$method" in
             'zstdcat')
                 zstdcat "$image" | dd of="$device" bs=4M iflag=fullblock oflag=direct status=progress
