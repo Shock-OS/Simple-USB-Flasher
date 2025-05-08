@@ -179,9 +179,9 @@ class app(Gtk.Application):
         elif next_page_name == 'flash_erase':
             device = self.get_device()
             if 'mmcblk' in device:
-                self.set_icon(self.flash_erase_icon, ['media-memory-sd', 'media-flash', 'media-flash-symbolic'], '/usr/share/simple-usb-flasher/fallback-icons/media-flash.svg')
+                self.set_icon(self.flash_erase_icon, ['media-memory-sd', 'media-flash', 'media-flash-symbolic'], '/usr/share/simple-usb-flasher/fallback-icons/media-sd.svg')
             else:
-                self.set_icon(self.flash_erase_icon, ['drive-removable-media-usb', 'drive-removable-media-usb-pendrive', 'drive-removable-media-usb-symbolic', 'drive-harddisk-usb-symbolic'], '/usr/share/simple-usb-flasher/fallback-icons/media-removable.svg')
+                self.set_icon(self.flash_erase_icon, ['drive-removable-media-usb', 'drive-removable-media-usb-pendrive', 'drive-removable-media-usb-symbolic', 'drive-harddisk-usb-symbolic'], '/usr/share/simple-usb-flasher/fallback-icons/media-usb.svg')
         elif next_page_name == 'done':
             self.pager_buttons_box.set_visible(False)
         self.stack.set_visible_child_name(next_page_name)
