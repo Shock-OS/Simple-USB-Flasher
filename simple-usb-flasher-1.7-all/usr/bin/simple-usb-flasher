@@ -40,6 +40,10 @@ class app(Gtk.Application):
         self.pages = ['start', 'image', 'ask_decompression_method', 'device', 'erase_opts', 'are_you_sure', 'flash_erase', 'done']
 
         self.stack = builder.get_object("stack")
+        self.info_bar = builder.get_object("info_bar")
+        self.info_bar.connect("response", self.close_info_bar)
+        self.info_bar.set_revealed(False)
+        self.info_bar_message = builder.get_object("info_bar_message")
         self.pager_buttons_box = builder.get_object("pager_buttons_box")
         self.next_button = builder.get_object("next_button")
         self.next_button.connect("clicked", self.change_page)
@@ -111,7 +115,9 @@ class app(Gtk.Application):
             if button == self.next_button and self.page < 7:
                 if get_current_page_name() == 'image':
                     if not self.get_image():
-                        self.show_error_warning('e', 'You have not selected an image to flash. Please select a bootable image to flash.', page_name='image')
+                        self.show_info_bar(Gtk.MessageType.WARNING, "Please select a bootable image to continue")
+                        return
+                        #self.show_error_warning('e', 'You have not selected an image to flash. Please select a bootable image to flash.', page_name='image')
                     else:
                         if not self.get_image_type():
                             image = self.get_image()
@@ -126,7 +132,9 @@ class app(Gtk.Application):
                             action='flash'
                         else:
                             action='erase'
-                        self.show_error_warning('e', f'You have not selected a device to {action}. Please insert and select a USB stick, USB HDD/SSD, or SD card to {action}.', page_name='device')
+                        self.show_info_bar(Gtk.MessageType.WARNING, f"Please select a device to {action}.")
+                        return
+                        #self.show_error_warning('e', f'You have not selected a device to {action}. Please insert and select a USB stick, USB HDD/SSD, or SD card to {action}.', page_name='device')
                     else:
                         if self.flash_toggle_button.get_active():
                             set_page_from_name('are_you_sure')
@@ -184,6 +192,8 @@ class app(Gtk.Application):
                 self.set_icon(self.flash_erase_icon, ['drive-removable-media-usb', 'drive-removable-media-usb-pendrive', 'drive-removable-media-usb-symbolic', 'drive-harddisk-usb-symbolic'], '/usr/share/simple-usb-flasher/fallback-icons/media-usb.svg')
         elif next_page_name == 'done':
             self.pager_buttons_box.set_visible(False)
+        if next_page_name != 'flash_erase':
+            self.info_bar.set_revealed(False)
         self.stack.set_visible_child_name(next_page_name)
 
     def refresh_devices(self, button):
@@ -432,6 +442,14 @@ class app(Gtk.Application):
         thread = threading.Thread(target=start_flashing)
         thread.start()
 
+    def show_info_bar(self, message_type, message):
+        self.info_bar_message.set_label(message)
+        self.info_bar.set_message_type(message_type)
+        self.info_bar.set_revealed(True)
+
+    def close_info_bar(self, info_bar, response):
+        self.info_bar.set_revealed(False)
+
     def show_notification(self, title="", message="", flash_error=False):
         if not message and not flash_error:
             raise ValueError("You must use either 'message=' or 'flash_error=True'")
@@ -463,6 +481,7 @@ class app(Gtk.Application):
 
     def main_window_close_request(self, window):
         if self.stack.get_visible_child_name() == 'flash_erase' and self.prevent_close:
+            self.show_info_bar(Gtk.MessageType.INFO, "Cannot exit while an operation is in progress. Please wait for the operation to finish before closing this window.")
             return True
 
 app = app(application_id=f"net.CarsonGFromJPT.Simple-USB-Flasher", flags=Gio.ApplicationFlags.NON_UNIQUE)
