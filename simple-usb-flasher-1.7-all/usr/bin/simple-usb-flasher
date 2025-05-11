@@ -117,7 +117,6 @@ class app(Gtk.Application):
                     if not self.get_image():
                         self.show_info_bar(Gtk.MessageType.WARNING, "Please select a bootable image to continue")
                         return
-                        #self.show_error_warning('e', 'You have not selected an image to flash. Please select a bootable image to flash.', page_name='image')
                     else:
                         if not self.get_image_type():
                             image = self.get_image()
@@ -134,7 +133,6 @@ class app(Gtk.Application):
                             action='erase'
                         self.show_info_bar(Gtk.MessageType.WARNING, f"Please select a device to {action}.")
                         return
-                        #self.show_error_warning('e', f'You have not selected a device to {action}. Please insert and select a USB stick, USB HDD/SSD, or SD card to {action}.', page_name='device')
                     else:
                         if self.flash_toggle_button.get_active():
                             set_page_from_name('are_you_sure')
