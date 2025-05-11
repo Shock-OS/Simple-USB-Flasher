@@ -221,6 +221,7 @@ class app(Gtk.Application):
             self.error_warning_title.set_label('<span size="xx-large" weight="bold">Warning</span>')
             self.error_warning_icon.set_from_icon_name("important")
         self.error_warning_message.set_label(message)
+        self.info_bar.set_revealed(False)
         self.stack.set_visible_child_name("error_warning")
         self.pager_buttons_box.set_visible(True)
         self.back_button.set_visible(False)

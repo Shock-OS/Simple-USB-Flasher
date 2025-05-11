@@ -20,7 +20,6 @@
             <property name="show-close-button">True</property>
             <child>
               <object class="GtkLabel" id="info_bar_message">
-                <property name="halign">center</property>
                 <property name="hexpand">True</property>
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
