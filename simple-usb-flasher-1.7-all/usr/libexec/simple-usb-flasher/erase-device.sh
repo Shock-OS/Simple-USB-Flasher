@@ -50,7 +50,7 @@ echo "$new_label"
 
 if [[ "$fs" == 'exfat' ]]
 then
-    label="$(parse_label remove '" * / : < > ? \ |' 15 "$label")"
+    label="$(parse_label remove '" * / : < > ? \ |' 11 "$label")"
 elif [[ "$fs" == 'ext4' ]]
 then
     label="$(echo "$label" | tr -cd '\0-\177')" # convert to ASCII

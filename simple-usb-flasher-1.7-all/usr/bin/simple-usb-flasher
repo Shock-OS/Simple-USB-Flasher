@@ -90,7 +90,7 @@ class app(Gtk.Application):
         self.image_too_big_yes_button = builder.get_object("image_too_big_yes_button")
         self.image_too_big_yes_button.connect("clicked", self.quitloop, True)
 
-        self.settings = Gio.Settings.new("net.carsongfromjpt.simple-usb-flasher.gui-settings")
+        self.settings = Gio.Settings.new("net.shockos.Simple_USB_Flasher.gui-settings")
         self.settings.bind("ask-for-decompression-method", self.ask_for_method_checkbox, "active", Gio.SettingsBindFlags.DEFAULT)
         self.loop = GLib.MainLoop()
         self.change_page(page_name='start')
@@ -483,6 +483,6 @@ class app(Gtk.Application):
             self.show_info_bar(Gtk.MessageType.INFO, "Cannot exit while an operation is in progress. Please wait for the operation to finish before closing this window.")
             return True
 
-app = app(application_id=f"net.CarsonGFromJPT.Simple-USB-Flasher", flags=Gio.ApplicationFlags.NON_UNIQUE)
+app = app(application_id=f"net.shockos.Simple_USB_Flasher", flags=Gio.ApplicationFlags.NON_UNIQUE)
 app.run()
 
