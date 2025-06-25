@@ -10,7 +10,7 @@ log "Unmounting all partitions of ${device}..."
 report="$(sudo umount "$device"* 2>&1 >/dev/null)"
 while IFS= read -r line
 do
-    if [[ "$line" == *"umount: "* ]] && [[ "$line" != *"${device}: not mounted"* ]]
+    if [[ "$line" == *"umount: "* ]] && [[ "$line" != *"${device}"*": not mounted"* ]]
     then
         logerror "ERROR: ${line}"
         exit 1

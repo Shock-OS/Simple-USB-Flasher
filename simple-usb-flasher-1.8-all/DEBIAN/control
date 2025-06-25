@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Carson Grover
 Homepage: https://www.shockos.net
 Package: simple-usb-flasher
-Version: 1.7
+Version: 1.8
 Architecture: all
 Depends: python3, python3-gi, gir1.2-gtk-4.0, 7zip, bzip2, gzip, lzma, tar, unrar | unrar-free, unzip, xz-utils, zstd
 Recommends: adwaita-icon-theme
