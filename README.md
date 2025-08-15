@@ -83,7 +83,7 @@ To print this screen in the terminal, you can run:
  - .zip
  - .zst
 
-<b>NOTE:</b> If you attempt to flash an image of a file type that is not in the list above, the program will give you a warning letting you know that the file type is not supported. However, it will still allow you to flash the image if you want, but doing so corrupt the device (which can be easily fixed using GParted, see Known Issues below).
+<b>NOTE:</b> If you attempt to flash an image of a file type that is not in the list above, the program will give you a warning letting you know that the file type is not supported. However, it will still allow you to flash the image if you want, but doing so may corrupt the device (which can be easily fixed using GParted, see Known Issues below).
 
 ## Known Issues
 
