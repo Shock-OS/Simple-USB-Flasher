@@ -9,6 +9,7 @@ import argparse
 import subprocess
 import threading
 from pathlib import Path
+import re
 import os
 deskenv = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
 if not 'gnome' in deskenv:
@@ -67,6 +68,7 @@ class app(Gtk.Application):
         self.devices_dropdown = builder.get_object("devices_dropdown")
         self.refresh_devices(self.refresh_devices_button)
         self.ask_for_method_checkbox = builder.get_object("ask_for_method_checkbox")
+        self.windows_image_checkbox = builder.get_object("windows_image_checkbox")
         self.decompression_methods_dropdown = builder.get_object("decompression_methods_dropdown")
         self.are_you_sure_message = builder.get_object("are_you_sure_message")
         self.are_you_sure_yes_button = builder.get_object("are_you_sure_yes_button")
@@ -116,6 +118,9 @@ class app(Gtk.Application):
                 if get_current_page_name() == 'image':
                     if not self.get_image():
                         self.show_info_bar(Gtk.MessageType.WARNING, "Please select a bootable image to continue")
+                        return
+                    elif self.windows_image_checkbox.get_active() and subprocess.run(['dpkg', '-s', 'woeusb'], capture_output=True, text=True).returncode != 0:
+                        self.show_error_warning('e', f"Flashing a Windows image requires WoeUSB, which is not installed. To install WoeUSB, please run the following commands in a terminal window:\n\nsudo add-apt-repository ppa:tomtomtom/woeusb \nsudo apt update \nsudo apt install woeusb", page_name='image')
                         return
                     else:
                         if not self.get_image_type():
@@ -365,26 +370,49 @@ class app(Gtk.Application):
         def update_progress_bar(fraction):
             self.progress_bar.set_fraction(fraction)
             percentage = round(fraction * 100)
-            self.progress_bar_label.set_text(f"Flashing image '{image_basename}' to device {device}... ({percentage}%)")
+            if fraction == 1.0 and self.windows_image_checkbox.get_active():
+                self.progress_bar_label.set_text(f"Flashing image '{image_basename}' to device {device}... (Finishing up, please be patient...)")
+            else:
+                self.progress_bar_label.set_text(f"Flashing image '{image_basename}' to device {device}... ({percentage}%)")
         def start_flashing():
             self.prevent_close = True
             reason_for_failure = None
-            process = subprocess.Popen(['pkexec', '/usr/libexec/simple-usb-flasher/write-image.sh', f"{image}", f"{device}", f"{method}"], stderr=subprocess.PIPE, text=True)
-            for line in process.stderr:
-                line = line.strip()
-                log(line)
-                try:
-                    if ': target is busy' in line:
-                        reason_for_failure = 'device_in_use'
-                    elif f"dd: error writing '{device}': No space left on device" in line:
-                        reason_for_failure = 'not_enough_space'
-                    bytes_written = line.split(" ", 1)[0]
-                    fraction = int(bytes_written) / self.image_size
-                    fraction = round(fraction, 2)
-                    log(fraction)
-                    GLib.idle_add(update_progress_bar, fraction)
-                except:
-                    pass
+            if self.windows_image_checkbox.get_active():
+                self.progress_bar_label.set_text(f"Flashing image '{image_basename}' to device {device}... (Getting ready...)")
+                process = subprocess.Popen(['pkexec', '/usr/libexec/simple-usb-flasher/write-image-woeusb.sh', f"{image}", f"{device}"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0, text=True)
+                pattern = re.compile(r"(100|\d{1,2})%$")
+                buffer = ""
+                while True:
+                    chunk = process.stdout.read(1)
+                    if not chunk:
+                        break
+                    if args.verbose: #yes, this is needed. log() won't work
+                        print(chunk, end='', flush=True)
+                    buffer += chunk
+                    if "\r" in buffer or "\n" in buffer:
+                        match = pattern.search(buffer)
+                        if match:
+                            percentage = int(match.group(1))
+                            fraction = percentage / 100
+                            GLib.idle_add(update_progress_bar, fraction)
+                        buffer = ""
+            else:
+                process = subprocess.Popen(['pkexec', '/usr/libexec/simple-usb-flasher/write-image.sh', f"{image}", f"{device}", f"{method}"], stderr=subprocess.PIPE, text=True)
+                for line in process.stderr:
+                    line = line.strip()
+                    log(line)
+                    try:
+                        if ': target is busy' in line:
+                            reason_for_failure = 'device_in_use'
+                        elif f"dd: error writing '{device}': No space left on device" in line:
+                            reason_for_failure = 'not_enough_space'
+                        bytes_written = line.split(" ", 1)[0]
+                        fraction = int(bytes_written) / self.image_size
+                        fraction = round(fraction, 2)
+                        log(fraction)
+                        GLib.idle_add(update_progress_bar, fraction)
+                    except:
+                        pass
             process.wait()
             self.prevent_close = False
             if process.returncode == 0:
@@ -404,7 +432,7 @@ class app(Gtk.Application):
                     self.show_error_warning('e', f"Could not flash image '{image}' to device {device} because there was not enough space on the device.", page_name='start')
                 else:
                     self.show_notification(flash_error=True)
-                    self.show_error_warning('e', f"/usr/libexec/simple-usb-flasher/write-image.sh exited with non-zero status of {process.returncode}.", page_name='start')
+                    self.show_error_warning('e', f"/usr/libexec/simple-usb-flasher/write-image.sh exited with non-zero status of {process.returncode}.", page_name='start') #make this more accurate for WoeUSB
                 return False
         try:
             device_size = subprocess.run([f"lsblk -bno SIZE {device} | head -n 1"], shell=True, capture_output=True, text=True, check=True)

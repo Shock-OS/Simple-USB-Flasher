@@ -14,6 +14,13 @@ else
     ask_for_method=false
 fi
 
+if [[ "$*" =~ ' --windows ' ]]
+then
+    windows_image=true
+else
+    windows_image=false
+fi
+
 function show-help-screen {
 echo 'simple-usb-flasher-cli: [ACTIONS] [PARAMETERS] [OPTIONS]'
 echo ''
@@ -25,6 +32,7 @@ printf "    %-35s %-10s \n" "list-supported-file-types" "Show a list of file typ
 echo ''
 echo 'FLASH OPTIONS:'
 printf "    %-25s %-10s \n" "--ask-method" "If multiple decompression methods are available for an image type, prompt the user for which one to use. If this options is not applied, the default option will be used."
+printf "    %-25s %-10s \n" "--windows" "Use this flag if flashing a Microsoft Windows image to a device."
 printf "    %-25s %-10s \n" "--skip-size-check" "Don't check to see if image will fit on device, attempt flashing anyway."
 printf "    %-25s %-10s \n" "--skip-size-check-smart" "Same as '--skip-size-check', but only skips checking size if it 'may take a while'."
 echo ''
@@ -78,6 +86,16 @@ fi
 echo "$method"
 }
 
+function parse-ans {
+ans="${ans,,}"
+if [[ "$ans" == 'y' || "$ans" == 'yes' ]]
+then
+    return 0
+else
+    return 1
+fi
+}
+
 function list-devices {
 local devices=($(/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh))
 local sizes=()
@@ -109,11 +127,31 @@ then
     echo "WARNING: File '${image}' does not appear to be a valid image file. However, you can have the program attempt to write the file to device $device anyway."
     echo ''
     read -p 'Attempt to flash image anyway? [y/N]: ' ans
-    ans="${ans,,}"
-    if ! [[ "$ans" == 'yes' || "$ans" == 'y' ]]
+    parse-ans || abort "$device"
+elif [[ "$file_type" == '.iso' ]] && [[ "$(basename "$image" | awk '{print tolower($0)}')" =~ 'win' ]]
+then
+    echo "This appears to be a Microsoft Windows image. (The string 'win' was detected in the filename.) Is this a Windows image?"
+    echo ''
+    read -p 'Windows image? [y/N]: ' ans
+    parse-ans
+    ans="$?"
+    if [[ "$ans" == '0' ]]
     then
-        abort "$device"
+        windows_image=true
+    else
+        windows_image=false
     fi
+fi
+if $windows_image && ! dpkg -s woeusb >/dev/null 2>&1
+then
+    echo "ERROR: WoeUSB not installed"
+    echo ''
+    echo 'WoeUSB, which is required to flash Microsoft Windows images, is not installed. To install it, run the following commands in the terminal:'
+    echo ''
+    echo 'sudo add-apt-repository ppa:tomtomtom/woeusb'
+    echo 'sudo apt update'
+    echo 'sudo apt install woeusb'
+    exit
 fi
 if ! ( [[ " $* " =~ ' --skip-size-check ' ]] || ( [[ " $* " =~ ' --skip-size-check-smart ' ]] && /usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh "$image" --takes-time ) )
 then
@@ -121,16 +159,12 @@ then
     local device_size=$(lsblk -bno SIZE "$device" | head -n 1)
     if (( $(( image_size + $(( 512 * 1024 * 1024 )) )) > device_size ))
     then
-        local image_size_gb="$(/usr/libexec/simple-usb-flasher/bytes-to-gb.sh "$image_size")"
-        local device_size_gb="$(/usr/libexec/simple-usb-flasher/bytes-to-gb.sh "$device_size")"
+        local image_size_gb="$(/usr/libexec/simple-usb-flasher/conversions/bytes-to-gb.sh "$image_size")"
+        local device_size_gb="$(/usr/libexec/simple-usb-flasher/conversions/bytes-to-gb.sh "$device_size")"
         echo "WARNING: Image '${image}' ($image_size_gb GB) appears to be too big for device $device ($device_size_gb GB). Therefore, flashing this image will likely not result in the device being bootable. However, you can still have the program attempt to flash the image anyway if you like."
         echo ''
         read -p "Flash image anyway? [y/N]: " ans
-        ans="${ans,,}"
-        if ! [[ "$ans" == 'yes' || "$ans" == 'y' ]]
-        then
-            abort "$device"
-        fi
+        parse-ans || abort "$device"
     fi
 else
     echo 'WARNING: Skipping size check, errors may be encountered if the source image is too large for the target device.'
@@ -143,7 +177,12 @@ echo ''
 read -p "Flash image to device ${device}? [y/N]: " ans
 case "$ans" in
     'y'|'yes')
-        sudo /usr/libexec/simple-usb-flasher/write-image.sh "$image" "$device" "$method" --verbose
+        if $windows_image
+        then
+            sudo /usr/libexec/simple-usb-flasher/write-image-woeusb.sh "$image" "$device"
+        else
+            sudo /usr/libexec/simple-usb-flasher/write-image.sh "$image" "$device" "$method" --verbose
+        fi
         exit
         ;;
     *)
