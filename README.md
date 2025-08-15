@@ -15,7 +15,7 @@ This README file and the program itself will use the words "image" and "device" 
 
 ## Disclaimer
 
-This program has rigorous built-in safeguards to prevent flashing the computer's internal hard drive. It also displays a warning before flashing/erasing a device with an option to cancel. However, this program comes with <b>ABSOLUTELY NO WARRANTY</b>, and I am not responsible for unwanted data loss. The program is designed to only identify anything mounted under `/media` or `/mnt` as a removable storage device. If you have any internal/external drives with important data mounted in these locations, the program may recognize them as a USB stick, so be careful not to select them. <b>YOU HAVE BEEN WARNED!</b>
+This program has rigorous built-in safeguards to prevent flashing the computer's internal hard drive. It also displays a warning before flashing/erasing a device with an option to cancel. However, this program comes with <b>ABSOLUTELY NO WARRANTY</b>, and I am not responsible for unintended data loss. The program is designed to only identify anything mounted under `/media` or `/mnt` as a removable storage device. If you have any internal/external drives with important data mounted in these locations, the program may recognize them as a USB stick, so be careful not to select them. <b>YOU HAVE BEEN WARNED!</b>
 
 ## Installation
 
