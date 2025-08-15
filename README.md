@@ -55,6 +55,7 @@ ACTIONS:
 
 FLASH OPTIONS:
     --ask-method              If multiple decompression methods are available for an image type, prompt the user for which one to use. If this options is not applied, the default option will be used. 
+    --windows                 Use this flag if flashing a Microsoft Windows image to a device. 
     --skip-size-check         Don't check to see if image will fit on device, attempt flashing anyway. 
     --skip-size-check-smart   Same as '--skip-size-check', but only skips checking size if it 'may take a while'. 
 
