@@ -4,7 +4,10 @@ devices=()
 
 function findmps {
 dir="$1"
-if [ -d "$dir"/* ]
+shopt -s nullglob
+subdirs=("$dir"/*/)
+shopt -u nullglob
+if (( ${#subdirs[@]}))
 then
     for mountpoint in "$dir"/*
     do
