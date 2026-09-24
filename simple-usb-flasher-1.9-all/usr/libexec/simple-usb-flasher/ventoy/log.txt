@@ -1,0 +1,219 @@
+[2026/07/28 09:59:25] 
+[2026/07/28 09:59:25] =========================================================
+[2026/07/28 09:59:25] =========================================================
+[2026/07/28 09:59:25] =============== VentoyGui x86_64 ===============
+[2026/07/28 09:59:25] =========================================================
+[2026/07/28 09:59:25] =========================================================
+[2026/07/28 09:59:25] log file is <log.txt>
+[2026/07/28 09:59:25] pid:1665480 ppid:1665469 uid:1000 euid:1000
+[2026/07/28 09:59:25] adjust dir:1  current path:/home/carson/Downloads/ventoy-1.1.17
+[2026/07/28 09:59:25] =========RAW ARGS BEGIN===========
+[2026/07/28 09:59:25] argv[0]=<./VentoyGUI.x86_64>
+[2026/07/28 09:59:25] =========RAW ARGS END===========
+[2026/07/28 09:59:25] uname -m <x86_64> 64bit
+[2026/07/28 09:59:25] Build bit is 64 (x86_64)
+[2026/07/28 09:59:25] Now detect the GUI type ...
+[2026/07/28 09:59:25] 1877 libs found in cache format 1
+[2026/07/28 09:59:25] LIB:<libgtk-4.so.1>
+[2026/07/28 09:59:25] LIB:<libgtk-3.so.0>
+[2026/07/28 09:59:25] LIB:<libgtk-x11-2.0.so.0>
+[2026/07/28 09:59:25] LIB:<libQt6Xml.so.6>
+[2026/07/28 09:59:25] LIB:<libQt5X11Extras.so.5>
+[2026/07/28 09:59:25] ldconfig lib flags 0x37
+[2026/07/28 09:59:25] lib flags GLADE2:[NO] GTK2:[YES] GTK3:[YES] GTK4:[YES] QT4:[NO] QT5:[YES] QT6:[YES]
+[2026/07/28 09:59:25] distro_check_gui_env ...
+[2026/07/28 09:59:25] Key arch is not found in json data.
+[2026/07/28 09:59:25] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/28 09:59:25] Key arch is not found in json data.
+[2026/07/28 09:59:25] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/28 09:59:25] Key arch is not found in json data.
+[2026/07/28 09:59:25] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/28 09:59:25] Key arch is not found in json data.
+[2026/07/28 09:59:25] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/28 09:59:25] env DESKTOP_SESSION is cinnamon
+[2026/07/28 09:59:25] distro_check_gui <gtk3> ...
+[2026/07/28 09:59:25] This is gtk3 X environment.
+[2026/07/28 09:59:25] exe = /home/carson/Downloads/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3
+[2026/07/28 09:59:25] execute permission check success.
+[2026/07/28 09:59:25] === XDG_SESSION_TYPE is <x11> ===
+[2026/07/28 09:59:25] EUID check failed.
+[2026/07/28 09:59:25] try restart self by pkexec ...
+[2026/07/28 09:59:25] Find pkexec at </usr/bin/pkexec>
+[2026/07/28 09:59:25] create environment param 52
+[2026/07/28 09:59:25] =========PKEXEC ARGS BEGIN===========
+[2026/07/28 09:59:25] argv[0]=</usr/bin/pkexec>
+[2026/07/28 09:59:25] argv[1]=</home/carson/Downloads/ventoy-1.1.17/./VentoyGUI.x86_64>
+[2026/07/28 09:59:25] argv[2]=<_vtoy_env_str_=SHELL=/bin/bash
+SESSION_MANAGER=local/aDell:@/tmp/.ICE-unix/4346,unix/aDell:/tmp/.ICE-unix/4346
+QT_ACCESSIBILITY=1
+COLORTERM=truecolor
+XDG_CONFIG_DIRS=/etc/xdg/xdg-cinnamon:/etc/xdg
+XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0
+GNOME_DESKTOP_SESSION_ID=this-is-deprecated
+GTK_IM_MODULE=ibus
+QT_IM_MODULES=wayland;ibus
+LANGUAGE=en_US
+SSH_AUTH_SOCK=/run/user/1000/keyring/ssh
+CINNAMON_VERSION=6.6.9
+XMODIFIERS=@im=ibus
+DESKTOP_SESSION=cinnamon
+GTK_MODULES=gail:atk-bridge
+XDG_SEAT=seat0
+PWD=/home/carson/Downloads/ventoy-1.1.17
+LOGNAME=carson
+XDG_SESSION_DESKTOP=cinnamon
+XDG_SESSION_TYPE=x11
+GPG_AGENT_INFO=/run/user/1000/gnupg/S.gpg-agent:0:1
+XAUTHORITY=/home/carson/.Xauthority
+XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/carson
+GDM_LANG=en_US
+INSIDE_NEMO_PYTHON=
+HOME=/home/carson
+LANG=en_US.UTF-8
+LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:
+XDG_CURRENT_DESKTOP=X-Cinnamon
+VTE_VERSION=7600
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+GNOME_TERMINAL_SCREEN=/org/gnome/Terminal/screen/2437d58a_5796_4fbd_b326_31549bbb9bf3
+CLUTTER_IM_MODULE=ibus
+LESSCLOSE=/usr/bin/lesspipe %s %s
+XDG_SESSION_CLASS=user
+TERM=xterm-256color
+LESSOPEN=| /usr/bin/lesspipe %s
+LIBVIRT_DEFAULT_URI=qemu:///system
+USER=carson
+GNOME_TERMINAL_SERVICE=:1.552
+DISPLAY=:0
+SHLVL=1
+QT_IM_MODULE=ibus
+XDG_VTNR=7
+XDG_SESSION_ID=c2
+XDG_RUNTIME_DIR=/run/user/1000
+GTK3_MODULES=xapp-gtk3-module
+XDG_DATA_DIRS=/usr/share/cinnamon:/home/carson/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+PATH=/home/carson/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+GDMSESSION=cinnamon
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+_=./VentoyGUI.x86_64
+>
+[2026/07/28 09:59:25] argv[3]=<_vtoy_gui_path_=/home/carson/Downloads/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/28 09:59:25] =========PKEXEC ARGS END===========
+############# Ventoy2Disk --help [x86_64] ################
+Fri Aug 28 09:59:53 AM MST 2026
+decompress tools
+############# Ventoy2Disk  [x86_64] ################
+Fri Aug 28 10:34:40 AM MST 2026
+decompress tools
+############# Ventoy2Disk -f /dev/sdc [x86_64] ################
+Fri Aug 28 10:39:27 AM MST 2026
+decompress tools
+############# Ventoy2Disk /dev/sdc -f [x86_64] ################
+Fri Aug 28 10:39:34 AM MST 2026
+decompress tools
+############# Ventoy2Disk -I /dev/sdc [x86_64] ################
+Fri Aug 28 10:40:05 AM MST 2026
+decompress tools
+MODE=install FORCE=Y RESERVE_SPACE= RESERVE_SIZE_MB=0
+hexdump test ok ...
+mkexfatfs test ok ...
+vtoycli fat test ok ...
+tool check success ...
+check tool work ok
+Trying to umount /media/carson/Linux040Mint04022.3040MATE04064-bit ...
+############# Ventoy2Disk -I /dev/sdc [x86_64] ################
+Fri Aug 28 10:40:47 AM MST 2026
+decompress tools
+MODE=install FORCE=Y RESERVE_SPACE= RESERVE_SIZE_MB=0
+hexdump test ok ...
+mkexfatfs test ok ...
+vtoycli fat test ok ...
+tool check success ...
+check tool work ok
+############# Ventoy2Disk -I /dev/sdc [x86_64] ################
+Fri Aug 28 10:41:00 AM MST 2026
+decompress tools
+MODE=install FORCE=Y RESERVE_SPACE= RESERVE_SIZE_MB=0
+hexdump test ok ...
+mkexfatfs test ok ...
+vtoycli fat test ok ...
+tool check success ...
+check tool work ok
+root permission check ok ...
+install Ventoy ...
+part1 start is 64 not 2048
+############# Ventoy2Disk -I /dev/sdc -y [x86_64] ################
+Fri Aug 28 10:41:30 AM MST 2026
+decompress tools
+############# Ventoy2Disk -I -y /dev/sdc [x86_64] ################
+Fri Aug 28 10:41:36 AM MST 2026
+decompress tools
+############# Ventoy2Disk -I /dev/sdc [x86_64] ################
+Fri Aug 28 10:41:41 AM MST 2026
+decompress tools
+MODE=install FORCE=Y RESERVE_SPACE= RESERVE_SIZE_MB=0
+hexdump test ok ...
+mkexfatfs test ok ...
+vtoycli fat test ok ...
+tool check success ...
+check tool work ok
+root permission check ok ...
+install Ventoy ...
+part1 start is 64 not 2048
+############# Ventoy2Disk -I /dev/sdc [x86_64] ################
+Fri Aug 28 10:43:10 AM MST 2026
+decompress tools
+MODE=install FORCE=Y RESERVE_SPACE= RESERVE_SIZE_MB=0
+hexdump test ok ...
+mkexfatfs test ok ...
+vtoycli fat test ok ...
+tool check success ...
+check tool work ok
+root permission check ok ...
+install Ventoy ...
+part1 start is 64 not 2048
+############# Ventoy2Disk -I /dev/sdc [x86_64] ################
+Fri Aug 28 10:44:17 AM MST 2026
+decompress tools
+MODE=install FORCE=Y RESERVE_SPACE= RESERVE_SIZE_MB=0
+hexdump test ok ...
+mkexfatfs test ok ...
+vtoycli fat test ok ...
+tool check success ...
+check tool work ok
+Trying to umount /media/carson/Linux040Mint04022.3040MATE04064-bit ...
+############# Ventoy2Disk -I /dev/sdc [x86_64] ################
+Fri Aug 28 10:44:25 AM MST 2026
+decompress tools
+MODE=install FORCE=Y RESERVE_SPACE= RESERVE_SIZE_MB=0
+hexdump test ok ...
+mkexfatfs test ok ...
+vtoycli fat test ok ...
+tool check success ...
+check tool work ok
+root permission check ok ...
+install Ventoy ...
+part1 start is 64 not 2048
+format_ventoy_disk_mbr 0 /dev/sdc parted ...
+part1_start_sector=2048  part1_end_sector=60022783
+part2_start_sector=60022784  part2_end_sector=60088319
+format disk by parted ...
+test uuid: 00000000  7a f5 d7 28 1b e6 43 88  b2 a6 f0 70 cb 8c df df  |z..(..C....p....|
+00000010
+############# Ventoy2Disk -I /dev/sdc [x86_64] ################
+Fri Aug 28 10:45:17 AM MST 2026
+decompress tools
+MODE=install FORCE=Y RESERVE_SPACE= RESERVE_SIZE_MB=0
+hexdump test ok ...
+mkexfatfs test ok ...
+vtoycli fat test ok ...
+tool check success ...
+check tool work ok
+root permission check ok ...
+install Ventoy ...
+Ventoy version in /dev/sdc2 is 1.1.17
+format_ventoy_disk_mbr 0 /dev/sdc parted ...
+part1_start_sector=2048  part1_end_sector=60022783
+part2_start_sector=60022784  part2_end_sector=60088319
+format disk by parted ...
+test uuid: 00000000  ce 60 3a b6 15 fa 4b 27  8a 3a 7e 75 02 39 1e c5  |.`:...K'.:~u.9..|
+00000010

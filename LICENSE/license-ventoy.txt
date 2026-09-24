@@ -1,0 +1,11 @@
+Ventoy
+------
+
+Simple USB Flasher includes Ventoy as a backend for flashing Microsoft Windows disk images to create bootable Windows USB drives.
+
+Ventoy is developed by the Ventoy project and is licensed under the GNU General Public License, version 3 or later (GPLv3+).
+
+Ventoy project:
+https://github.com/ventoy/ventoy
+
+The Ventoy source code and license information are included with this distribution.

@@ -1,2 +1,3 @@
  - Replace pointless arguments in Python script functions with *args or **kwargs
- - Lots of testing, thanks to WoeUSB additions
+ - Replace WoeUSB with Ventoy
+ - Add USB and SD card counterfeit tests powered by f3probe

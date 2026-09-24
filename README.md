@@ -56,8 +56,6 @@ ACTIONS:
 FLASH OPTIONS:
     --ask-method              If multiple decompression methods are available for an image type, prompt the user for which one to use. If this options is not applied, the default option will be used. 
     --windows                 Use this flag if flashing a Microsoft Windows image to a device (requires WoeUSB). 
-    --skip-size-check         Don't check to see if image will fit on device, attempt flashing anyway. 
-    --skip-size-check-smart   Same as '--skip-size-check', but only skips checking size if it 'may take a while'. 
 
 OTHER OPTIONS:
     --verbose            Increase output verbosity</pre>
@@ -87,15 +85,10 @@ To print this screen in the terminal, you can run:
 <b>NOTE:</b> If you attempt to flash an image of a file type that is not in the list above, the program will give you a warning letting you know that the file type is not supported. However, it will still allow you to flash the image if you want, but doing so may corrupt the device (which can be easily fixed using GParted, see Known Issues below).
 
 ## Windows ISOs
-This program can flash Microsoft Windows images, but only if WoeUSB is installed. To install WoeUSB on Ubuntu and its derivatives, run the following commands in a terminal window:
+This program uses Ventoy as a backend to flash Microsoft Windows disk images to USB flash drives.
 
-`$ sudo add-apt-repository ppa:tomtomtom/woeusb`
-
-`$ sudo apt update`
-
-`$ sudo apt install woeusb`
-
-<b>NOTE:</b> While installing WoeUSB guarantees that Windows images will flash properly, it may still be possible to flash a Windows image without having WoeUSB installed and have it boot. In testing, this has worked in some cases, but not in others. Installing WoeUSB is highly recommended whenever possible, however.
+Ventoy project:
+https://github.com/ventoy/Ventoy
 
 ## Known Issues
 
