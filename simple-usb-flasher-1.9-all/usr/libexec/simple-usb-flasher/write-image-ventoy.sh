@@ -6,6 +6,12 @@ verbose="$3"
 
 source /usr/libexec/simple-usb-flasher/funcs/check-root.sh
 
+function handle_error {
+local returncode="$?"
+logerror "ERROR: Failed to flash image '${image}' to device ${device}. $1 exited with return code ${returncode}."
+exit $returncode
+}
+
 /usr/libexec/simple-usb-flasher/verify-mountpoints.sh "$device" || exit "$?"
 
 if [[ ! -f "$image" ]]
@@ -18,11 +24,11 @@ fi
 
 log "Installing Ventoy to device ${device}..."
 
-printf 'y\ny\n' | /usr/libexec/simple-usb-flasher/ventoy/Ventoy2Disk.sh -I "$device"
+printf 'y\ny\n' | /usr/libexec/simple-usb-flasher/ventoy/Ventoy2Disk.sh -I "$device" || handle_error 'Ventoy'
 
 log "Re-mounting device ${device}..."
 
-mount "${device}1" "$(mktemp -d /tmp/simple-usb-flasher.XXXXXX)"
+mount "${device}1" "$(mktemp -d /tmp/simple-usb-flasher.XXXXXX)" || handle_error 'mount'
 
 mountpoint="$(findmnt -n -o TARGET "${device}1")"
 
@@ -33,7 +39,7 @@ then
     pv "$image" | dd of="${mountpoint}/$(basename "$image")" bs=16M oflag=sync status=none
 else
     pv -n "$image" | dd of="${mountpoint}/$(basename "$image")" bs=16M oflag=sync status=none
-fi
+fi || handle_error 'dd'
 
 sync
 sudo umount "$device"* &> /dev/null
