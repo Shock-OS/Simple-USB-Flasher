@@ -201,7 +201,7 @@ class app(Gtk.Application):
             self.info_bar.set_revealed(False)
         self.stack.set_visible_child_name(next_page_name)
 
-    def refresh_devices(self, button):
+    def refresh_devices(self, *args):
         devices = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh'], capture_output=True, text=True)
         devices = devices.stdout.strip().splitlines()
         if devices:
@@ -238,7 +238,7 @@ class app(Gtk.Application):
         if page_name:
             self.change_page(page_name=page_name)
 
-    def dismiss_error_warning(self, button):
+    def dismiss_error_warning(self, *args):
         self.loop.quit()
 
     def get_image(self):
@@ -382,22 +382,6 @@ class app(Gtk.Application):
             self.progress_bar_label.set_text(f"Flashing image '{image_basename}' to device {device}... (Getting ready...)")
             if self.windows_image_checkbox.get_active():
                 process = subprocess.Popen(['pkexec', '/usr/libexec/simple-usb-flasher/write-image-ventoy.sh', f"{image}", f"{device}"], stderr=subprocess.PIPE, text=True)
-                #pattern = re.compile(r"(100|\d{1,2})%$")
-                #buffer = ""
-                #while True:
-                #    chunk = process.stdout.read(1)
-                #    if not chunk:
-                #        break
-                #    if args.verbose: #yes, this is needed. log() won't work
-                #        print(chunk, end='', flush=True)
-                #    buffer += chunk
-                #    if "\r" in buffer or "\n" in buffer:
-                #        match = pattern.search(buffer)
-                #        if match:
-                #            percentage = int(match.group(1))
-                #            fraction = percentage / 100
-                #            GLib.idle_add(update_progress_bar, fraction)
-                #        buffer = ""
             else:
                 process = subprocess.Popen(['pkexec', '/usr/libexec/simple-usb-flasher/write-image.sh', f"{image}", f"{device}", f"{method}", f"{self.image_size}"], stderr=subprocess.PIPE, text=True)
             for line in process.stderr:
@@ -478,7 +462,7 @@ class app(Gtk.Application):
         self.info_bar.set_message_type(message_type)
         self.info_bar.set_revealed(True)
 
-    def close_info_bar(self, info_bar, response):
+    def close_info_bar(self, *args):
         self.info_bar.set_revealed(False)
 
     def show_notification(self, title="", message="", flash_error=False):
@@ -510,7 +494,7 @@ class app(Gtk.Application):
         log(f"No '{icon_names[0]}' or equivalent/similar icon found, using fallback icon '{final_fallback}'.")
         widget.set_from_file(final_fallback)
 
-    def main_window_close_request(self, window):
+    def main_window_close_request(self, *args):
         if self.stack.get_visible_child_name() == 'flash_erase' and self.prevent_close:
             self.show_info_bar(Gtk.MessageType.INFO, "Cannot exit while an operation is in progress. Please wait for the operation to finish before closing this window.")
             return True

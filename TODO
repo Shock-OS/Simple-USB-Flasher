@@ -1,1 +1,0 @@
- - Replace pointless arguments in Python script functions with *args or **kwargs

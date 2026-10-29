@@ -33,8 +33,6 @@ echo ''
 echo 'FLASH OPTIONS:'
 printf "    %-25s %-10s \n" "--ask-method" "If multiple decompression methods are available for an image type, prompt the user for which one to use. If this options is not applied, the default option will be used."
 printf "    %-25s %-10s \n" "--windows" "Use this flag if flashing a Microsoft Windows image to a device."
-#printf "    %-25s %-10s \n" "--skip-size-check" "Don't check to see if image will fit on device, attempt flashing anyway."
-#printf "    %-25s %-10s \n" "--skip-size-check-smart" "Same as '--skip-size-check', but only skips checking size if it 'may take a while'."
 echo ''
 echo 'OTHER OPTIONS:'
 printf "    %-20s %-10s \n" "--verbose" "Increase output verbosity"
@@ -142,19 +140,6 @@ then
         windows_image=false
     fi
 fi
-#if $windows_image && ! dpkg -s woeusb >/dev/null 2>&1
-#then
-#    echo "ERROR: WoeUSB not installed"
-#    echo ''
-#    echo 'WoeUSB, which is required to flash Microsoft Windows images, is not installed. To install it, run the following commands in the terminal:'
-#    echo ''
-#    echo 'sudo add-apt-repository ppa:tomtomtom/woeusb'
-#    echo 'sudo apt update'
-#    echo 'sudo apt install woeusb'
-#    exit
-#fi
-#if ! ( [[ " $* " =~ ' --skip-size-check ' ]] || ( [[ " $* " =~ ' --skip-size-check-smart ' ]] && /usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh "$image" --takes-time ) )
-#then
 image_size="$(/usr/libexec/simple-usb-flasher/get-image-info/get-image-size.sh "$image")"
 local device_size=$(lsblk -bno SIZE "$device" | head -n 1)
 if (( $(( image_size + $(( 512 * 1024 * 1024 )) )) > device_size ))
@@ -166,9 +151,6 @@ then
     read -p "Flash image anyway? [y/N]: " ans
     parse-ans || abort "$device"
 fi
-#else
-#    echo 'WARNING: Skipping size check, errors may be encountered if the source image is too large for the target device.'
-#fi
 local method
 method="$(ask-method "$image")"
 echo ''

@@ -55,7 +55,7 @@ ACTIONS:
 
 FLASH OPTIONS:
     --ask-method              If multiple decompression methods are available for an image type, prompt the user for which one to use. If this options is not applied, the default option will be used. 
-    --windows                 Use this flag if flashing a Microsoft Windows image to a device (requires WoeUSB). 
+    --windows                 Use this flag if flashing a Microsoft Windows image to a device. 
 
 OTHER OPTIONS:
     --verbose            Increase output verbosity</pre>
