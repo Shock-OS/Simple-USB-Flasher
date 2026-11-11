@@ -46,6 +46,15 @@ echo "Operation aborted. No changes were made to device ${device}."
 exit
 }
 
+function check-for-device {
+local device="$1"
+if [[ ! " $(/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh) " =~ " $device " ]]
+then
+    logerror "ERROR: ${device}: Device not found."
+    exit 1
+fi
+}
+
 function list-supported-file-types {
 cat /usr/share/simple-usb-flasher/supported-file-types.txt
 }
@@ -121,11 +130,7 @@ local image="$(echo "$1" | sed "s|^~|$HOME|")"
 /usr/libexec/simple-usb-flasher/get-image-info/check-file-exists.sh "$image" --verbose || exit "$?"
 local device
 device="$(/usr/libexec/simple-usb-flasher/parse-device.sh "$2" --verbose)" || exit "$?"
-if [[ ! " $(/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh) " =~ " $device " ]]
-then
-    logerror "ERROR: ${device}: Device not found."
-    exit 1
-fi
+check-for-device "$device"
 local file_type="$(/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh "$image" "$verbose")"
 if [[ -z "$file_type" ]]
 then
@@ -183,6 +188,7 @@ esac
 function erase() {
 local device
 device="$(/usr/libexec/simple-usb-flasher/parse-device.sh "$1" --verbose)" || exit "$?"
+check-for-device "$device"
 if $ask_for_method
 then
     echo "Which filesystem would you like to format device $device with? Available options are:"

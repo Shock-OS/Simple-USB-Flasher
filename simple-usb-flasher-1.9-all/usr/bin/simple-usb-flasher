@@ -201,6 +201,13 @@ class app(Gtk.Application):
             self.info_bar.set_revealed(False)
         self.stack.set_visible_child_name(next_page_name)
 
+    def check_for_device(self, device, *args):
+        devices = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh'], capture_output=True, text=True)
+        devices = devices.stdout.strip()
+        if f" {device} " not in f" {devices} ":
+            self.show_error_warning('e', f"Device '{device}' not found.", page_name='start')
+            return False
+
     def refresh_devices(self, *args):
         devices = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh'], capture_output=True, text=True)
         devices = devices.stdout.strip().splitlines()
@@ -304,6 +311,8 @@ class app(Gtk.Application):
         device = self.get_device()
         fs = self.erase_fs_cb.get_active_id()
         label = self.erase_label_entry.get_text()
+        if self.check_for_device(device) is False:
+            return False
         def start_erasing():
             try:
                 self.prevent_close = True
@@ -428,10 +437,7 @@ class app(Gtk.Application):
             self.show_notification(flash_error=True)
             self.show_error_warning('e', str(error), page_name='start')
             return False
-        devices = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh'], capture_output=True, text=True)
-        devices = devices.stdout.strip()
-        if f" {device} " not in f" {devices} ":
-            self.show_error_warning('e', f"Device '{device}' not found.", page_name='start')
+        if self.check_for_device(device) is False:
             return False
         device_size = int(device_size.stdout.strip())
         image_basename = self.get_image()
