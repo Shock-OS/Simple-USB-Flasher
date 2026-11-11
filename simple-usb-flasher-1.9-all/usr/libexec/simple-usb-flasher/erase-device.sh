@@ -13,7 +13,8 @@ then
     exit 1
 fi
 
-/usr/libexec/simple-usb-flasher/verify-mountpoints.sh "$device" || exit "$?"
+/usr/libexec/simple-usb-flasher/verify-mountpoints.sh "$device" "$verbose" || exit "$?"
+/usr/libexec/simple-usb-flasher/locks/lock-device.sh "$device" "$verbose" || exit "$?"
 
 function parse_label {
 local action="$1"
@@ -123,5 +124,6 @@ set +e
 trap - ERR
 sudo umount "$device"* &> /dev/null
 eject "$device" || udisksctl power-off -b "$device"
+/usr/libexec/simple-usb-flasher/locks/unlock-device.sh "$device" "$verbose" || exit "$?"
 echo "SUCCESS! Device $device was successfully formatted with the $fs filesystem. You can now safely remove the device."
 

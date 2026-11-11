@@ -1,43 +1,27 @@
 #!/bin/bash
 
 devices=()
+all_devices=($(lsblk -o PATH,SIZE,TYPE | awk 'NR == 1 || ($2 != "0B" && $3 == "disk")' | awk '{print $1}' | tail -n +2))
 
-function findmps {
-dir="$1"
-shopt -s nullglob
-subdirs=("$dir"/*/)
-shopt -u nullglob
-if (( ${#subdirs[@]}))
-then
-    for mountpoint in "$dir"/*
-    do
-        mpdirs+=("$mountpoint")
-    done
-    for dir in "${mpdirs[@]}"
-    do
-        if (( $(ls "$dir" | wc -l) > 0 ))
+for device in "${all_devices[@]}"
+do
+    lockfile="/run/simple-usb-flasher/locks/${device:5}"
+    if [[ ! -f "$lockfile" ]]
+    then
+        mapfile -t mountpoints < <(lsblk -no MOUNTPOINT "$device" | tail -n +2)
+        if ((${#mountpoints[@]}>0))
         then
-            for mountpoint in "$dir"/*
+            for mountpoint in "${mountpoints[@]}"
             do
-                device="$(df | grep "$mountpoint" | head -n 1 | awk '{print $1}')"
-                if [[ "$device" =~ [0-9]$ ]]
+                if ! [[ "$mountpoint" == '/media/'* || "$mountpoint" == '/mnt/'* || -z "$mountpoint" ]]
                 then
-                    device="$(lsblk -pno PKNAME "$device")" || continue
-                fi
-                if [[ -n "$device" ]] && [[ ! " ${devices[@]} " =~ " $device " ]]
-                then
-                    devices+=("$device")
+                    continue 2
                 fi
             done
         fi
-    done
-fi
-}
-
-findmps /media
-findmps /mnt
-
-mapfile -t devices < <(printf "%s\n" "${devices[@]}" | sort -u)
+        devices+=("$device")
+    fi
+done
 
 for device in "${devices[@]}"
 do

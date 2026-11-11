@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /usr/libexec/simple-usb-flasher/funcs/log.sh
+
 if [[ " $* " =~ ' --verbose ' ]]
 then
     verbose=true
@@ -119,6 +121,11 @@ local image="$(echo "$1" | sed "s|^~|$HOME|")"
 /usr/libexec/simple-usb-flasher/get-image-info/check-file-exists.sh "$image" --verbose || exit "$?"
 local device
 device="$(/usr/libexec/simple-usb-flasher/parse-device.sh "$2" --verbose)" || exit "$?"
+if [[ ! " $(/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh) " =~ " $device " ]]
+then
+    logerror "ERROR: ${device}: Device not found."
+    exit 1
+fi
 local file_type="$(/usr/libexec/simple-usb-flasher/get-image-info/get-file-type.sh "$image" "$verbose")"
 if [[ -z "$file_type" ]]
 then

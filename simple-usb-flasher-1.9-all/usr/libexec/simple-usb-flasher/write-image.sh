@@ -19,14 +19,14 @@ logerror "ERROR: Unknown method '${method}'"
 exit 1
 }
 
-/usr/libexec/simple-usb-flasher/verify-mountpoints.sh "$device" || exit "$?"
-
 if [[ ! -f "$image" ]]
 then
     logerror "ERROR: File '${image}' does not exist."
     exit 1
 fi
 
+/usr/libexec/simple-usb-flasher/verify-mountpoints.sh "$device" "$verbose" || exit "$?"
+/usr/libexec/simple-usb-flasher/locks/lock-device.sh "$device" "$verbose" || exit "$?"
 /usr/libexec/simple-usb-flasher/unmount-device.sh "$device" --verbose || exit "$?"
 
 if $verbose
@@ -156,5 +156,6 @@ esac || handle_error
 sync
 sudo umount "$device"* &> /dev/null
 eject "$device" || udisksctl power-off -b "$device"
+/usr/libexec/simple-usb-flasher/locks/unlock-device.sh "$device" "$verbose" || exit "$?"
 log "SUCCESS! Image '$(basename "$image")' has successfully been flashed to device ${device}. You can now safely remove the device."
 

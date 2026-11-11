@@ -9,22 +9,36 @@ if [[ ! -b "$device" ]]
 then
     logerror "ERROR: '${device}' is not a block device."
     exit 2
+elif [[ -f /var/simple-usb-flasher/locks/"${device:5}" ]]
+then
+    logerror "ERROR: Device is locked, must currently be in use by another instance of Simple USB Flasher."
+    exit 1
 fi
 
-mountpoints="$(lsblk -no MOUNTPOINT "$device")"
-while IFS= read -r mountpoint
+mapfile -t mountpoints < <(lsblk -no MOUNTPOINT "$device" | tail -n +2)
+for mountpoint in "${mountpoints[@]}"
 do
     if ! [[ "$mountpoint" == '/media/'* || "$mountpoint" == '/mnt/'* || -z "$mountpoint" ]]
     then
         logerror "ERROR: Device ${device} is mounted at '${mountpoint}', which is NOT /media or /mnt, meaning it can be reasonably assumed that device ${device} is NOT an external block device, but rather an internal drive. Therefore, flashing to or erasing this drive is not allowed."
         exit 1
     fi
-done <<< "$mountpoints"
+done
 
-mapfile -t devices <<< "$(bash /usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh)"
-if [[ ! " ${devices[@]} " =~ " $device " ]]
-then
-    logerror "ERROR: Device $device exists but is not mounted. Please mount the device to be able to properly flash or erase it."
-    exit 1
-fi
+#mountpoints="$(lsblk -no MOUNTPOINT "$device" | tail -n +2)"
+#while IFS= read -r mountpoint
+#do
+#    if ! [[ "$mountpoint" == '/media/'* || "$mountpoint" == '/mnt/'* || -z "$mountpoint" ]]
+#    then
+#        logerror "ERROR: Device ${device} is mounted at '${mountpoint}', which is NOT /media or /mnt, meaning it can be reasonably assumed that device ${device} is NOT an external block device, but rather an internal drive. Therefore, flashing to or erasing this drive is not allowed."
+#        exit 1
+#    fi
+#done <<< "$mountpoints"
+
+#mapfile -t devices <<< "$(bash /usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh)"
+#if [[ ! " ${devices[@]} " =~ " $device " ]]
+#then
+#    logerror "ERROR: Device $device exists but is not mounted. Please mount the device to be able to properly flash #or erase it."
+#    exit 1
+#fi
 
