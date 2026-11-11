@@ -428,6 +428,11 @@ class app(Gtk.Application):
             self.show_notification(flash_error=True)
             self.show_error_warning('e', str(error), page_name='start')
             return False
+        devices = subprocess.run(['/usr/libexec/simple-usb-flasher/get-devices-info/get-devices.sh'], capture_output=True, text=True)
+        devices = devices.stdout.strip()
+        if f" {device} " not in f" {devices} ":
+            self.show_error_warning('e', f"Device '{device}' not found.", page_name='start')
+            return False
         device_size = int(device_size.stdout.strip())
         image_basename = self.get_image()
         image_basename = Path(image_basename).name
